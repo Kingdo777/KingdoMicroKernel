@@ -1,6 +1,9 @@
 target_include_directories(${kernel_target} PRIVATE include)
 
-list(APPEND _init_sources init/start.S)
+list(APPEND _init_sources init/start.S
+                          init/tools.S
+                          init/init.c
+                          peripherals/uart.c)
 
 target_sources_out_objects(${kernel_target} PRIVATE init_objects ${_init_sources})
 
