@@ -62,6 +62,9 @@ target_compile_definitions(${kernel_target} PRIVATE $<$<CONFIG:Release>:LOG_LEVE
 
 # Include directories
 target_include_directories(${kernel_target} PRIVATE include)
+target_include_directories(${kernel_target} PRIVATE include/arch/${KMK_ARCH})
+target_include_directories(${kernel_target} PRIVATE include/arch/${KMK_ARCH}/plat/${KMK_PLAT})
 
 # Add source code directories
 add_subdirectory(arch/${KMK_ARCH})
+add_subdirectory(lib)

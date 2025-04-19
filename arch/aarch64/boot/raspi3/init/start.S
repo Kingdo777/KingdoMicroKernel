@@ -5,7 +5,7 @@
 .extern arm64_elX_to_el1
 .extern boot_cpu_stack
 .extern init
-// .extern secondary_init
+.extern secondary_init
 
 .section .text
 .global _start;

@@ -6,6 +6,11 @@
 // #include <common/backtrace.h>
 #endif
 
+#define va_list __builtin_va_list
+#define va_start __builtin_va_start
+#define va_arg __builtin_va_arg
+#define va_end __builtin_va_end
+
 #define ALIGN(n) __attribute__((__aligned__(n)))
 
 #define ROUND_UP(x, n)		(((x) + (n) - 1) & ~((n) - 1))

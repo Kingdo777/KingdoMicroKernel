@@ -60,13 +60,13 @@ void init(void)
 
 	/* Initialize UART before enabling MMU. */
 	early_uart_init();
-	uart_send_string("boot: init\r\n");
 
 	wakeup_other_cores();
+	uart_send_string("[BOOT] Wake up other cores\r\n");
 
 	/* Initialize Kernel Page Table. */
-	uart_send_string("[BOOT] Install kernel page table\r\n");
 	init_kernel_pt();
+	uart_send_string("[BOOT] Install kernel page table\r\n");
 
 	/* Enable MMU. */
 	el1_mmu_activate();
@@ -74,7 +74,7 @@ void init(void)
 
 	/* Call Kernel Main. */
 	uart_send_string("[BOOT] Jump to kernel main\r\n");
-	// start_kernel(secondary_boot_flag);
+	start_kernel(secondary_boot_flag);
 
 	/* Never reach here */
 	while (1);
@@ -83,5 +83,5 @@ void init(void)
 void secondary_init(int cpuid)
 {
 	el1_mmu_activate();
-	// secondary_cpu_boot(cpuid);
+	secondary_cpu_boot(cpuid);
 }
