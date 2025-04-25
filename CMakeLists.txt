@@ -68,3 +68,4 @@ target_include_directories(${kernel_target} PRIVATE include/arch/${KMK_ARCH}/pla
 # Add source code directories
 add_subdirectory(arch/${KMK_ARCH})
 add_subdirectory(lib)
+add_subdirectory(mm)

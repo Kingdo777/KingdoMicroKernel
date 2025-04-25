@@ -8,8 +8,10 @@
 
 #if __SIZEOF_POINTER__ == 4 /* 32-bit architecture */
 #define KBASE		0xC0000000UL
+#define PHYSICAL_ADDR_MASK (30)
 #else /* 64-bit architecture */
 #define KBASE		0xFFFFFF0000000000UL
+#define PHYSICAL_ADDR_MASK (40)
 #endif
 
 #endif /* COMMON_VARS_H */

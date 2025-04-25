@@ -10,7 +10,7 @@ build:
 	@echo "Building kernel image..."
 	@mkdir -p $(BUILDDIR)
 	@cd $(BUILDDIR) && \
-		cmake .. && \
+		cmake -DMKM_KERNEL_DEBUG=1 .. && \
 		make -j4
 
 qemu: build

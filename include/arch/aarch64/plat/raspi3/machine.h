@@ -3,6 +3,17 @@
 
 #include <common/vars.h>
 
+/*
+ * 在树莓派 3B+ 机器上，其物理内存大小为 1GB，分布如下：
+ * 0x00000000~0x3f000000 物理内存（SDRAM），1008 MB
+ * 0x3f000000~0x40000000 共享外设内存（Peripheral），是​​外设寄存器（MMIO）的地址映射，16 MB
+ * 0x40000000~0xFFFFFFFF 本地外设内存，每个 CPU 核独立，3 GB
+*/ 
+#define PHYSMEM_START           (0x0UL)
+#define PERIPHERAL_BASE         (0x3F000000UL)
+#define SHARED_PERIPHERAL_END   (0x40000000UL)
+#define PHYSMEM_END             (0xFFFFFFFFUL)
+
 /* raspi3 config */
 #define PLAT_CPU_NUM    4
 #define PLAT_RASPI3

@@ -1,15 +1,17 @@
 #ifndef COMMON_MACRO_H
 #define COMMON_MACRO_H
 
-#ifndef __ASM__
-// #include <common/kprint.h>
-// #include <common/backtrace.h>
-#endif
-
 #define va_list __builtin_va_list
 #define va_start __builtin_va_start
 #define va_arg __builtin_va_arg
 #define va_end __builtin_va_end
+
+#ifndef __ASM__
+#include <common/kprint.h>
+// #include <common/backtrace.h>
+#endif
+
+#define backtrace() while(1)
 
 #define ALIGN(n) __attribute__((__aligned__(n)))
 
