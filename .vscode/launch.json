@@ -8,18 +8,19 @@
       "program": "${workspaceFolder}/build/kernel.img",
       "miDebuggerPath": "/usr/bin/gdb-multiarch",
       "miDebuggerServerAddress": "localhost:1234",
-      "miDebuggerArgs": "--nx -x ${workspaceFolder}/SCRIPTS/gdb/gdbinit",
-      "stopAtEntry": false,
+      "stopAtEntry": true,
+      "stopAtConnect": true,
+      "targetArchitecture": "arm64",
       "cwd": "${workspaceFolder}",
       "externalConsole": false,
       "MIMode": "gdb",
       "setupCommands": [
         {
-          "description": "Set architecture",
-          "text": "set architecture aarch64",
-          "ignoreFailures": false
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
         }
-      ]
+      ]      
     }
   ]
 }
