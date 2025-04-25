@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Remote GDB: AArch64 Kernel",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/kernel.img",
+      "miDebuggerPath": "/usr/bin/gdb-multiarch",
+      "miDebuggerServerAddress": "localhost:1234",
+      "miDebuggerArgs": "--nx -x ${workspaceFolder}/SCRIPTS/gdb/gdbinit",
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Set architecture",
+          "text": "set architecture aarch64",
+          "ignoreFailures": false
+        }
+      ]
+    }
+  ]
+}
