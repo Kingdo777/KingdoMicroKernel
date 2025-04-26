@@ -1,12 +1,17 @@
 PROJECT := $(dir $(lastword $(MAKEFILE_LIST)))
 BUILDDIR := $(PROJECT)/build
 SCRIPTS := $(PROJECT)/scripts
+TOOLS := $(PROJECT)/tools
 KERNEL_IMG := $(BUILDDIR)/kernel.img
 QEMU_OPTS := -machine raspi3b -nographic -serial mon:stdio -m size=1G -kernel $(KERNEL_IMG)
 
 all: build
 
-build:
+format:
+	@echo "Formatting code..."
+	@bash ${TOOLS}/format.sh
+
+build: format
 	@echo "Building kernel image..."
 	@mkdir -p $(BUILDDIR)
 	@cd $(BUILDDIR) && \
@@ -22,4 +27,4 @@ qemu-gdb: build
 gdb:
 	gdb-multiarch --nx -x $(SCRIPTS)/gdb/gdbinit
 
-.PHONY: all build qemu qemu-gdb gdb
+.PHONY: all build qemu qemu-gdb gdb format

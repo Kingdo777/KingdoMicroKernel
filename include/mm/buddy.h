@@ -6,13 +6,13 @@
 #include <common/lock.h>
 
 /* 和 Linux 保持一致，最大可分配连续物理内存为2MB */
-#define BUDDY_MAX_ORDER                 (11)
-#define BUDDY_CHUNK_SIZE(order)         (1 << (PAGE_SHIFT + order))
-#define BUDDY_CHUNK_SIZE_MASK(order)    (BUDDY_CHUNK_SIZE(order) - 1)
-#define BUDDY_CHUNK_PAGES_COUNT(order)  (BUDDY_CHUNK_SIZE(order) / PAGE_SIZE)
+#define BUDDY_MAX_ORDER (11)
+#define BUDDY_CHUNK_SIZE(order) (1 << (PAGE_SHIFT + order))
+#define BUDDY_CHUNK_SIZE_MASK(order) (BUDDY_CHUNK_SIZE(order) - 1)
+#define BUDDY_CHUNK_PAGES_COUNT(order) (BUDDY_CHUNK_SIZE(order) / PAGE_SIZE)
 
-#define pfn_to_page(pfn)	(memory_region_g.page_arrry + pfn)
-#define page_to_pfn(page)	((unsigned long)((page) - memory_region_g.page_arrry))
+#define pfn_to_page(pfn) (memory_region_g.page_arrry + pfn)
+#define page_to_pfn(page) ((unsigned long)((page) - memory_region_g.page_arrry))
 
 extern struct mem_region memory_region_g;
 
@@ -23,32 +23,32 @@ extern struct mem_region memory_region_g;
 */
 
 struct free_list {
-        struct list_head free_list;
-        unsigned long nr_free;
+	struct list_head free_list;
+	unsigned long nr_free;
 };
 
 struct mem_region {
-    /* 可分配物理内存的起始地址，不包括存放page 数组的内存 */
-    void *start_addr;
-    /* 可分配物理内存的大小 */
-    size_t size;
-    
-    /* page 数组的起始地址 */
-    struct page *page_arrry;
-    /* page 数量 */
-    size_t page_num;
+	/* 可分配物理内存的起始地址，不包括存放page 数组的内存 */
+	void *start_addr;
+	/* 可分配物理内存的大小 */
+	size_t size;
 
-    /* 内存分配释放锁 */
-    struct lock free_lists_lock;
-    struct free_list free_lists[BUDDY_MAX_ORDER];
+	/* page 数组的起始地址 */
+	struct page *page_arrry;
+	/* page 数量 */
+	size_t page_num;
+
+	/* 内存分配释放锁 */
+	struct lock free_lists_lock;
+	struct free_list free_lists[BUDDY_MAX_ORDER];
 };
 
 /* `struct page` is the metadata of one physical 4k page. */
 struct page {
-    struct list_head node; /* Free list */
-    int allocated;
-    int order;
-    void *slab;
+	struct list_head node; /* Free list */
+	int allocated;
+	int order;
+	void *slab;
 };
 
 void init_buddy();

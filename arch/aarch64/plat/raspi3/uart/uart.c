@@ -66,7 +66,8 @@ unsigned int uart_fr(void)
 char uart_recv(void)
 {
 	/* Check if the fifo is empty. */
-	while (uart_fr() & (1 << 4));
+	while (uart_fr() & (1 << 4))
+		;
 
 	return (char)(get32(RASPI3_PL011_DR) & 0xFF);
 }
@@ -90,6 +91,7 @@ char nb_uart_recv(void)
 void uart_send(char c)
 {
 	/* Check if the send fifo is full. */
-	while (uart_fr() & (1 << 5)) ;
+	while (uart_fr() & (1 << 5))
+		;
 	put32(RASPI3_PL011_DR, (unsigned int)c);
 }

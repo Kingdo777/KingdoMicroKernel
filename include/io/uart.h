@@ -1,7 +1,7 @@
 #ifndef IO_UART_H
 #define IO_UART_H
 
-#define NB_UART_NRET        ((char) -1)
+#define NB_UART_NRET ((char)-1)
 
 void uart_init(void);
 void uart_send(char c);

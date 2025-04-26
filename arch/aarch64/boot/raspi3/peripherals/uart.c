@@ -41,10 +41,10 @@ static unsigned int early_uart_fr(void)
 static void early_uart_send(unsigned int c)
 {
 	/* Check if the send fifo is full. */
-	while (early_uart_fr() & (1 << 5));
+	while (early_uart_fr() & (1 << 5))
+		;
 	early_put32(RASPI3_PL011_DR, c);
 }
-
 
 void uart_send_string(char *str)
 {

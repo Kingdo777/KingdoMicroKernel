@@ -17,22 +17,24 @@ struct lock big_kernel_lock;
  * @boot_flag: 从核可以正式启动时设置的标志
  * @physmem_info: 物理内存信息
  */
-void main(paddr_t boot_flag, void* physmem_info)
+void main(paddr_t boot_flag, void *physmem_info)
 {
-    u32 ret = 0;
-    kinfo("Hello KingdoMicroKernel! I am in kernel now!\n");
+	u32 ret = 0;
+	kinfo("Hello KingdoMicroKernel! I am in kernel now!\n");
 
-    lock_init(&big_kernel_lock);
-    kinfo("big_kernel_lock init finished\n");
+	lock_init(&big_kernel_lock);
+	kinfo("big_kernel_lock init finished\n");
 
-    /* Init mm */
+	/* Init mm */
 	mm_init(physmem_info);
 	kinfo("mm init finished\n");
 
-    while (1);
+	while (1)
+		;
 }
 
 void secondary_start(u32 cpuid)
 {
-    while (1);
+	while (1)
+		;
 }

@@ -19,8 +19,8 @@ extern char init_end;
 extern char _text_start;
 extern char _text_end;
 
-#define PLAT_CPU_NUMBER		4
+#define PLAT_CPU_NUMBER 4
 
-#define ALIGN(n)		__attribute__((__aligned__(n)))
+#define ALIGN(n) __attribute__((__aligned__(n)))
 
 #endif /* BOOT_H */

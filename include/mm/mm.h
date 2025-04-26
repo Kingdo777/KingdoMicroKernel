@@ -7,7 +7,7 @@
 #include <mm/buddy.h>
 
 /* Execute once during kernel init. */
-void mm_init(void* physmem_info);
+void mm_init(void *physmem_info);
 
 /* Return the size of free memory in the buddy and slab allocator. */
 unsigned long get_free_mem_size(void);

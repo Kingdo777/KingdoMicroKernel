@@ -4,96 +4,94 @@
 #include <common/types.h>
 /* Intel SDM Vol.3A Figure 4-11 */
 
-#define PAGE_BIT_PRESENT	0	/* is present */
-#define PAGE_BIT_RW		1	/* writeable */
-#define PAGE_BIT_USER		2	/* userspace addressable */
-#define PAGE_BIT_PWT		3	/* page write through */
-#define PAGE_BIT_PCD		4	/* page cache disabled */
-#define PAGE_BIT_ACCESSED	5	/* was accessed (raised by CPU) */
-#define PAGE_BIT_DIRTY		6	/* was written to (raised by CPU) */
-#define PAGE_BIT_PSE		7	/* 4 MB (or 2MB) page */
-#define PAGE_BIT_PAT		7	/* on 4KB pages */
-#define PAGE_BIT_GLOBAL	        8	/* Global TLB entry PPro+ */
-#define PAGE_BIT_SOFTW1	        9	/* available for programmer */
-#define PAGE_BIT_SOFTW2	        10	/* " */
-#define PAGE_BIT_SOFTW3	        11	/* " */
-#define PAGE_BIT_PAT_LARGE	12	/* On 2MB or 1GB pages */
-#define PAGE_BIT_SOFTW4	        58	/* available for programmer */
-#define PAGE_BIT_PKEY_BIT0	59	/* Protection Keys, bit 1/4 */
-#define PAGE_BIT_PKEY_BIT1	60	/* Protection Keys, bit 2/4 */
-#define PAGE_BIT_PKEY_BIT2	61	/* Protection Keys, bit 3/4 */
-#define PAGE_BIT_PKEY_BIT3	62	/* Protection Keys, bit 4/4 */
-#define PAGE_BIT_NX		63	/* No execute: only valid after cpuid check */
+#define PAGE_BIT_PRESENT 0 /* is present */
+#define PAGE_BIT_RW 1 /* writeable */
+#define PAGE_BIT_USER 2 /* userspace addressable */
+#define PAGE_BIT_PWT 3 /* page write through */
+#define PAGE_BIT_PCD 4 /* page cache disabled */
+#define PAGE_BIT_ACCESSED 5 /* was accessed (raised by CPU) */
+#define PAGE_BIT_DIRTY 6 /* was written to (raised by CPU) */
+#define PAGE_BIT_PSE 7 /* 4 MB (or 2MB) page */
+#define PAGE_BIT_PAT 7 /* on 4KB pages */
+#define PAGE_BIT_GLOBAL 8 /* Global TLB entry PPro+ */
+#define PAGE_BIT_SOFTW1 9 /* available for programmer */
+#define PAGE_BIT_SOFTW2 10 /* " */
+#define PAGE_BIT_SOFTW3 11 /* " */
+#define PAGE_BIT_PAT_LARGE 12 /* On 2MB or 1GB pages */
+#define PAGE_BIT_SOFTW4 58 /* available for programmer */
+#define PAGE_BIT_PKEY_BIT0 59 /* Protection Keys, bit 1/4 */
+#define PAGE_BIT_PKEY_BIT1 60 /* Protection Keys, bit 2/4 */
+#define PAGE_BIT_PKEY_BIT2 61 /* Protection Keys, bit 3/4 */
+#define PAGE_BIT_PKEY_BIT3 62 /* Protection Keys, bit 4/4 */
+#define PAGE_BIT_NX 63 /* No execute: only valid after cpuid check */
 
-#define PAGE_PRESENT	(1UL << PAGE_BIT_PRESENT)
-#define PAGE_RW	        (1UL << PAGE_BIT_RW)
-#define PAGE_USER	(1UL << PAGE_BIT_USER)
-#define PAGE_PWT	(1UL << PAGE_BIT_PWT)
-#define PAGE_PCD	(1UL << PAGE_BIT_PCD)
-#define PAGE_ACCESSED	(1UL << PAGE_BIT_ACCESSED)
-#define PAGE_DIRTY	(1UL << PAGE_BIT_DIRTY)
-#define PAGE_PSE	(1UL << PAGE_BIT_PSE)
-#define PAGE_GLOBAL	(1UL << PAGE_BIT_GLOBAL)
-#define PAGE_SOFTW1	(1UL << PAGE_BIT_SOFTW1)
-#define PAGE_SOFTW2	(1UL << PAGE_BIT_SOFTW2)
-#define PAGE_PAT	(1UL << PAGE_BIT_PAT)
-#define PAGE_PAT_LARGE  (1UL << PAGE_BIT_PAT_LARGE)
-#define PAGE_SPECIAL	(1UL << PAGE_BIT_SPECIAL)
-#define PAGE_CPA_TEST	(1UL << PAGE_BIT_CPA_TEST)
+#define PAGE_PRESENT (1UL << PAGE_BIT_PRESENT)
+#define PAGE_RW (1UL << PAGE_BIT_RW)
+#define PAGE_USER (1UL << PAGE_BIT_USER)
+#define PAGE_PWT (1UL << PAGE_BIT_PWT)
+#define PAGE_PCD (1UL << PAGE_BIT_PCD)
+#define PAGE_ACCESSED (1UL << PAGE_BIT_ACCESSED)
+#define PAGE_DIRTY (1UL << PAGE_BIT_DIRTY)
+#define PAGE_PSE (1UL << PAGE_BIT_PSE)
+#define PAGE_GLOBAL (1UL << PAGE_BIT_GLOBAL)
+#define PAGE_SOFTW1 (1UL << PAGE_BIT_SOFTW1)
+#define PAGE_SOFTW2 (1UL << PAGE_BIT_SOFTW2)
+#define PAGE_PAT (1UL << PAGE_BIT_PAT)
+#define PAGE_PAT_LARGE (1UL << PAGE_BIT_PAT_LARGE)
+#define PAGE_SPECIAL (1UL << PAGE_BIT_SPECIAL)
+#define PAGE_CPA_TEST (1UL << PAGE_BIT_CPA_TEST)
 
-#define PAGE_PKEY_BIT0	(1UL << PAGE_BIT_PKEY_BIT0)
-#define PAGE_PKEY_BIT1	(1UL << PAGE_BIT_PKEY_BIT1)
-#define PAGE_PKEY_BIT2	(1UL << PAGE_BIT_PKEY_BIT2)
-#define PAGE_PKEY_BIT3	(1UL << PAGE_BIT_PKEY_BIT3)
-#define PAGE_NX         (1UL << PAGE_BIT_NX)
+#define PAGE_PKEY_BIT0 (1UL << PAGE_BIT_PKEY_BIT0)
+#define PAGE_PKEY_BIT1 (1UL << PAGE_BIT_PKEY_BIT1)
+#define PAGE_PKEY_BIT2 (1UL << PAGE_BIT_PKEY_BIT2)
+#define PAGE_PKEY_BIT3 (1UL << PAGE_BIT_PKEY_BIT3)
+#define PAGE_NX (1UL << PAGE_BIT_NX)
 
-
-#define PAGE_SHIFT                                (12)
+#define PAGE_SHIFT (12)
 #ifndef PAGE_SIZE
-#define PAGE_SIZE                                 (1 << (PAGE_SHIFT))
+#define PAGE_SIZE (1 << (PAGE_SHIFT))
 #endif
-#define PAGE_MASK                                 (PAGE_SIZE - 1)
-#define PAGE_ORDER                                (9)
+#define PAGE_MASK (PAGE_SIZE - 1)
+#define PAGE_ORDER (9)
 
-#define PTP_ENTRIES				  (1 << PAGE_ORDER)
-#define L3					  (3)
-#define L2					  (2)
-#define L1					  (1)
-#define L0					  (0)
+#define PTP_ENTRIES (1 << PAGE_ORDER)
+#define L3 (3)
+#define L2 (2)
+#define L1 (1)
+#define L0 (0)
 
-#define PTP_INDEX_MASK				  ((1 << (PAGE_ORDER)) - 1)
-#define L0_INDEX_SHIFT			    ((3 * PAGE_ORDER) + PAGE_SHIFT)
-#define L1_INDEX_SHIFT			    ((2 * PAGE_ORDER) + PAGE_SHIFT)
-#define L2_INDEX_SHIFT			    ((1 * PAGE_ORDER) + PAGE_SHIFT)
-#define L3_INDEX_SHIFT			    ((0 * PAGE_ORDER) + PAGE_SHIFT)
+#define PTP_INDEX_MASK ((1 << (PAGE_ORDER)) - 1)
+#define L0_INDEX_SHIFT ((3 * PAGE_ORDER) + PAGE_SHIFT)
+#define L1_INDEX_SHIFT ((2 * PAGE_ORDER) + PAGE_SHIFT)
+#define L2_INDEX_SHIFT ((1 * PAGE_ORDER) + PAGE_SHIFT)
+#define L3_INDEX_SHIFT ((0 * PAGE_ORDER) + PAGE_SHIFT)
 
 #define GET_L0_INDEX(addr) ((addr >> L0_INDEX_SHIFT) & PTP_INDEX_MASK)
 #define GET_L1_INDEX(addr) ((addr >> L1_INDEX_SHIFT) & PTP_INDEX_MASK)
 #define GET_L2_INDEX(addr) ((addr >> L2_INDEX_SHIFT) & PTP_INDEX_MASK)
 #define GET_L3_INDEX(addr) ((addr >> L3_INDEX_SHIFT) & PTP_INDEX_MASK)
 
+#define x64_MMU_L1_BLOCK_ORDER (18)
+#define x64_MMU_L2_BLOCK_ORDER (9)
+#define x64_MMU_L3_PAGE_ORDER (0)
 
-#define x64_MMU_L1_BLOCK_ORDER                  (18)
-#define x64_MMU_L2_BLOCK_ORDER                  (9)
-#define x64_MMU_L3_PAGE_ORDER                   (0)
+#define x64_MMU_L0_BLOCK_PAGES (PTP_ENTRIES * x64_MMU_L1_BLOCK_PAGES)
+#define x64_MMU_L1_BLOCK_PAGES (1UL << x64_MMU_L1_BLOCK_ORDER)
+#define x64_MMU_L2_BLOCK_PAGES (1UL << x64_MMU_L2_BLOCK_ORDER)
+#define x64_MMU_L3_PAGE_PAGES (1UL << x64_MMU_L3_PAGE_ORDER)
 
-#define x64_MMU_L0_BLOCK_PAGES  (PTP_ENTRIES * x64_MMU_L1_BLOCK_PAGES)
-#define x64_MMU_L1_BLOCK_PAGES  (1UL << x64_MMU_L1_BLOCK_ORDER)
-#define x64_MMU_L2_BLOCK_PAGES  (1UL << x64_MMU_L2_BLOCK_ORDER)
-#define x64_MMU_L3_PAGE_PAGES   (1UL << x64_MMU_L3_PAGE_ORDER)
+#define L0_PER_ENTRY_PAGES (x64_MMU_L0_BLOCK_PAGES)
+#define L1_PER_ENTRY_PAGES (x64_MMU_L1_BLOCK_PAGES)
+#define L2_PER_ENTRY_PAGES (x64_MMU_L2_BLOCK_PAGES)
+#define L3_PER_ENTRY_PAGES (x64_MMU_L3_PAGE_PAGES)
 
-#define L0_PER_ENTRY_PAGES	  (x64_MMU_L0_BLOCK_PAGES)
-#define L1_PER_ENTRY_PAGES	  (x64_MMU_L1_BLOCK_PAGES)
-#define L2_PER_ENTRY_PAGES        (x64_MMU_L2_BLOCK_PAGES)
-#define L3_PER_ENTRY_PAGES	  (x64_MMU_L3_PAGE_PAGES)
+#define x64_MMU_L1_BLOCK_MASK ((1 << L1_INDEX_SHIFT) - 1)
+#define x64_MMU_L2_BLOCK_MASK ((1 << L2_INDEX_SHIFT) - 1)
+#define x64_MMU_L3_BLOCK_MASK ((1 << L3_INDEX_SHIFT) - 1)
 
-#define x64_MMU_L1_BLOCK_MASK     ((1 << L1_INDEX_SHIFT) - 1)
-#define x64_MMU_L2_BLOCK_MASK     ((1 << L2_INDEX_SHIFT) - 1)
-#define x64_MMU_L3_BLOCK_MASK     ((1 << L3_INDEX_SHIFT) - 1)
-
-#define GET_VA_OFFSET_L1(va)      (va & x64_MMU_L1_BLOCK_MASK)
-#define GET_VA_OFFSET_L2(va)      (va & x64_MMU_L2_BLOCK_MASK)
-#define GET_VA_OFFSET_L3(va)      (va & x64_MMU_L3_BLOCK_MASK)
+#define GET_VA_OFFSET_L1(va) (va & x64_MMU_L1_BLOCK_MASK)
+#define GET_VA_OFFSET_L2(va) (va & x64_MMU_L2_BLOCK_MASK)
+#define GET_VA_OFFSET_L3(va) (va & x64_MMU_L3_BLOCK_MASK)
 
 // clang-format off
 /* table format */
@@ -194,7 +192,7 @@ typedef struct {
 #define remove_pcid(pgtbl) (void *)(((u64)pgtbl) & (~PCID_MASK))
 #define get_pcid(pgtbl) (((u64)pgtbl) & (PCID_MASK))
 
-int get_next_ptp(ptp_t *cur_ptp, u32 level, vaddr_t va,
-		 ptp_t **next_ptp, pte_t **pte, bool alloc, long *rss);
+int get_next_ptp(ptp_t *cur_ptp, u32 level, vaddr_t va, ptp_t **next_ptp,
+		 pte_t **pte, bool alloc, long *rss);
 
 #endif

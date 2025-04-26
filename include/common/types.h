@@ -40,11 +40,11 @@ typedef u64 time_t;
 struct timespec {
 	time_t tv_sec;
 #ifdef BIG_ENDIAN
-	int : 8 * (sizeof(time_t)-sizeof(long));
+	int : 8 * (sizeof(time_t) - sizeof(long));
 	long tv_nsec;
 #else
 	long tv_nsec;
-	int : 8 * (sizeof(time_t)-sizeof(long));
+	int : 8 * (sizeof(time_t) - sizeof(long));
 #endif
 };
 

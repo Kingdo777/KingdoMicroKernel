@@ -6,7 +6,7 @@
 char boot_cpu_stack[PLAT_CPU_NUMBER][INIT_STACK_SIZE] ALIGN(4096);
 
 /* 从核开始执行的标志，被设置为{0xFFFF， 0， 0， 0， ...} 时 */
-long secondary_boot_flag[PLAT_CPU_NUMBER] = {0xFFFF};
+long secondary_boot_flag[PLAT_CPU_NUMBER] = { 0xFFFF };
 
 /*
  * 该函数用于手动清除 BSS 段的内容.
@@ -77,7 +77,8 @@ void init(void)
 	start_kernel(secondary_boot_flag);
 
 	/* Never reach here */
-	while (1);
+	while (1)
+		;
 }
 
 void secondary_init(int cpuid)
