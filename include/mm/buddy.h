@@ -58,4 +58,9 @@ void buddy_free_pages(struct page *page);
 void *page_to_virt(struct page *page);
 struct page *virt_to_page(void *ptr);
 
+unsigned long get_free_mem_size_from_buddy();
+unsigned long get_total_mem_size_from_buddy();
+unsigned long get_free_pages_nums_from_buddy();
+void print_buddy_info();
+
 #endif /* MM_BUDDY_H */

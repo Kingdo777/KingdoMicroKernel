@@ -17,7 +17,7 @@
  *
  */
 
- static bool page_in_list(struct page *page, struct list_head *list)
+static bool page_in_list(struct page *page, struct list_head *list)
 {
 	if (page == NULL || list == NULL || list_empty(list)) {
 		return false;
@@ -230,11 +230,6 @@ void init_buddy()
 
 	populate_page(memory_region_g.free_lists, memory_region_g.page_arrry,
 		      npages);
-	kinfo("Buddy system initialized, free pages: \n");
-	for (int order = 0; order < BUDDY_MAX_ORDER; ++order) {
-		kinfo("order %d: %ld\n", order,
-		      memory_region_g.free_lists[order].nr_free);
-	}
 }
 
 void buddy_free_pages(struct page *page)
@@ -302,4 +297,45 @@ struct page *virt_to_page(void *ptr)
 		return NULL;
 	}
 	return pfn_to_page(pfn);
+}
+
+unsigned long get_free_pages_nums_from_buddy()
+{
+	int order;
+	unsigned long total_size = 0;
+	for (order = 0; order < BUDDY_MAX_ORDER; ++order) {
+		total_size += memory_region_g.free_lists[order].nr_free *
+			      BUDDY_CHUNK_PAGES_COUNT(order);
+	}
+	return total_size;
+}
+
+unsigned long get_free_mem_size_from_buddy()
+{
+	int order;
+	unsigned long total_size = 0;
+	for (order = 0; order < BUDDY_MAX_ORDER; ++order) {
+		total_size += memory_region_g.free_lists[order].nr_free *
+			      BUDDY_CHUNK_SIZE(order);
+	}
+	return total_size;
+}
+
+unsigned long get_total_mem_size_from_buddy()
+{
+	return memory_region_g.size;
+}
+
+void print_buddy_info()
+{
+	kinfo("Free pages has %ld: \n", get_free_pages_nums_from_buddy());
+	for (int order = 0; order < BUDDY_MAX_ORDER; ++order) {
+		kinfo("order %d: %ld\n", order,
+		      memory_region_g.free_lists[order].nr_free);
+	}
+	kinfo("Free Memory size: %ldMB %ldKB, Total Memory size: %ldMB %ldKB\n",
+	      get_free_mem_size_from_buddy() / 1024 / 1024,
+	      get_free_mem_size_from_buddy() / 1024 % 1024,
+	      get_total_mem_size_from_buddy() / 1024 / 1024,
+	      get_total_mem_size_from_buddy() / 1024 % 1024);
 }
