@@ -3,6 +3,8 @@ BUILDDIR := $(PROJECT)/build
 SCRIPTS := $(PROJECT)/scripts
 TOOLS := $(PROJECT)/tools
 KERNEL_IMG := $(BUILDDIR)/kernel.img
+# 第一个 -serial 表示禁用PL011，第二个表示启用mini uart
+# QEMU_OPTS := -machine raspi3b -nographic -serial null -serial mon:stdio -m size=1G -kernel $(KERNEL_IMG)
 QEMU_OPTS := -machine raspi3b -nographic -serial mon:stdio -m size=1G -kernel $(KERNEL_IMG)
 
 all: build

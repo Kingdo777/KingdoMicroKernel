@@ -33,7 +33,7 @@
 
 #ifndef KSTACK_BASE
 #define KSTACK_BASE 0xFFFFFFFF00000000
-#define KSTACKx_ADDR(cpuid) ((cpuid) * 2 * CPU_STACK_SIZE + KSTACK_BASE)
+#define KSTACKx_ADDR(cpuid) ((cpuid)*2 * CPU_STACK_SIZE + KSTACK_BASE)
 #endif // 内核栈基址
 
 #ifndef __ASM__
@@ -41,7 +41,7 @@
 #include <arch/mm/page_table.h>
 
 #define phys_to_virt(x) ((vaddr_t)((paddr_t)(x) + KBASE))
-#define virt_to_phys(x) ((paddr_t)((vaddr_t)(x) - KBASE))
+#define virt_to_phys(x) ((paddr_t)((vaddr_t)(x)-KBASE))
 
 #endif // __ASM__
 

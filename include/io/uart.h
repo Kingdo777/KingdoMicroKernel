@@ -1,6 +1,7 @@
 #ifndef IO_UART_H
 #define IO_UART_H
 
+#define USE_mini_uart 0
 #define NB_UART_NRET ((char)-1)
 
 void uart_init(void);

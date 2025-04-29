@@ -7,6 +7,77 @@ static inline void delay(unsigned int cnt)
 		cnt--;
 }
 
+#if USE_mini_uart == 1
+
+void uart_init(void)
+{
+	unsigned int ra;
+
+	ra = get32(GPFSEL1);
+	ra &= ~(7 << 12);
+	ra |= 2 << 12;
+	ra &= ~(7 << 15);
+	ra |= 2 << 15;
+	put32(GPFSEL1, ra);
+
+	put32(GPPUD, 0);
+	delay(150);
+	put32(GPPUDCLK0, (1 << 14) | (1 << 15));
+	delay(150);
+	put32(GPPUDCLK0, 0);
+
+	put32(AUX_ENABLES, 1);
+	put32(AUX_MU_IER_REG, 0);
+	put32(AUX_MU_CNTL_REG, 0);
+	put32(AUX_MU_IER_REG, 0);
+	put32(AUX_MU_LCR_REG, 3);
+	put32(AUX_MU_MCR_REG, 0);
+	put32(AUX_MU_BAUD_REG, 270);
+
+	put32(AUX_MU_CNTL_REG, 3);
+
+	/* Clear the screen */
+	uart_send(12);
+	uart_send(27);
+	uart_send('[');
+	uart_send('2');
+	uart_send('J');
+}
+
+unsigned int uart_lsr(void)
+{
+	return get32(AUX_MU_LSR_REG);
+}
+
+char uart_recv(void)
+{
+	while (1) {
+		if (uart_lsr() & 0x01)
+			break;
+	}
+
+	return (char)(get32(AUX_MU_IO_REG) & 0xFF);
+}
+
+char nb_uart_recv(void)
+{
+	if (uart_lsr() & 0x01)
+		return (char)((get32(AUX_MU_IO_REG) & 0xFF));
+	else
+		return NB_UART_NRET;
+}
+
+void uart_send(char c)
+{
+	while (1) {
+		if (uart_lsr() & 0x20)
+			break;
+	}
+	put32(AUX_MU_IO_REG, (unsigned int)c);
+}
+
+#else /* PL011 */
+
 #define UART_BUF_LEN 16
 typedef struct uart_buffer {
 	char buffer[UART_BUF_LEN];
@@ -95,3 +166,5 @@ void uart_send(char c)
 		;
 	put32(RASPI3_PL011_DR, (unsigned int)c);
 }
+
+#endif

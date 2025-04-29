@@ -12,7 +12,7 @@
 #define BUDDY_CHUNK_PAGES_COUNT(order) (BUDDY_CHUNK_SIZE(order) / PAGE_SIZE)
 
 #define pfn_to_page(pfn) (memory_region_g.page_arrry + pfn)
-#define page_to_pfn(page) ((unsigned long)((page) - memory_region_g.page_arrry))
+#define page_to_pfn(page) ((unsigned long)((page)-memory_region_g.page_arrry))
 
 extern struct mem_region memory_region_g;
 

@@ -15,11 +15,11 @@
 
 #define ALIGN(n) __attribute__((__aligned__(n)))
 
-#define ROUND_UP(x, n) (((x) + (n) - 1) & ~((n) - 1))
-#define ROUND_DOWN(x, n) ((x) & ~((n) - 1))
-#define DIV_ROUND_UP(n, d) (((n) + (d) - 1) / (d))
+#define ROUND_UP(x, n) (((x) + (n)-1) & ~((n)-1))
+#define ROUND_DOWN(x, n) ((x) & ~((n)-1))
+#define DIV_ROUND_UP(n, d) (((n) + (d)-1) / (d))
 
-#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a) - 1)) == 0)
+#define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a)-1)) == 0)
 
 #define BIT(x) (1ULL << (x))
 
