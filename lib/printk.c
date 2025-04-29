@@ -74,6 +74,9 @@ void printk(const char *fmt, ...)
 
 	while (*fmt) {
 		if (*fmt != '%') {
+			if (*fmt == '\n') {
+				uart_send('\r'); // 强制回车
+			}
 			uart_send(*fmt);
 			fmt++;
 			continue;
