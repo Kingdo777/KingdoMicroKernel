@@ -5,6 +5,7 @@
 #include <common/list.h>
 #include <mm/page_table.h>
 #include <mm/buddy.h>
+#include <mm/slab.h>
 
 /* Execute once during kernel init. */
 void mm_init(void *physmem_info);

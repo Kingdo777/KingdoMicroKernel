@@ -9,7 +9,7 @@
 #define BUDDY_MAX_ORDER (11)
 #define BUDDY_CHUNK_SIZE(order) (1 << (PAGE_SHIFT + order))
 #define BUDDY_CHUNK_SIZE_MASK(order) (BUDDY_CHUNK_SIZE(order) - 1)
-#define BUDDY_CHUNK_PAGES_COUNT(order) (BUDDY_CHUNK_SIZE(order) / PAGE_SIZE)
+#define BUDDY_CHUNK_PAGES_COUNT(order) (1 << order)
 
 #define pfn_to_page(pfn) (memory_region_g.page_arrry + pfn)
 #define page_to_pfn(page) ((unsigned long)((page)-memory_region_g.page_arrry))

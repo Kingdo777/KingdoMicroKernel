@@ -51,6 +51,9 @@ static inline bool list_empty(struct list_head *head)
 
 #define list_entry(ptr, type, field) container_of(ptr, type, field)
 
+#define list_first_entry(head, type, field) \
+	list_entry((head)->next, type, field)
+
 #define for_each_in_list(elem, type, field, head)              \
 	for ((elem) = container_of((head)->next, type, field); \
 	     &((elem)->field) != (head);                       \

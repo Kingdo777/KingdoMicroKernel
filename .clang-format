@@ -77,6 +77,7 @@ ForEachMacros:
   - 'for_each_in_hlist_safe'
   - 'for_each_in_list'
   - 'for_each_in_list_safe'
+  - 'for_each_container_in_slab_pool'
 
 IncludeBlocks: Preserve
 IncludeCategories:

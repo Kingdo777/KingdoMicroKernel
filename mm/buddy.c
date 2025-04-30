@@ -267,7 +267,12 @@ struct page *buddy_get_pages(int order)
 		list_del(&page->node);
 		free_list->nr_free--;
 	}
-
+	if (page->allocated == 1) {
+		/* 如果该页已经被分配，说明有bug */
+		// TODO_DELETE
+		kerror("page %p has been allocated\n", page);
+		goto no_page;
+	}
 	BUG_ON(page->allocated == 1);
 	BUG_ON(page->order != order);
 	page->allocated = 1;
