@@ -5,11 +5,25 @@
 #include <common/list.h>
 #include <common/lock.h>
 
-/* 和 Linux 保持一致，最大可分配连续物理内存为2MB */
+/* 和 Linux 保持一致，最大可分配连续物理内存为4MB */
 #define BUDDY_MAX_ORDER (11)
-#define BUDDY_CHUNK_SIZE(order) (1 << (PAGE_SHIFT + order))
+#define BUDDY_CHUNK_SIZE(order) ((1UL) << (PAGE_SHIFT + order))
 #define BUDDY_CHUNK_SIZE_MASK(order) (BUDDY_CHUNK_SIZE(order) - 1)
-#define BUDDY_CHUNK_PAGES_COUNT(order) (1 << order)
+#define BUDDY_CHUNK_PAGES_COUNT(order) ((1UL) << order)
+
+#define size_to_page_order(size)                                      \
+	({                                                            \
+		int __order = 0;                                      \
+		if ((size) <= 0 ||                                    \
+		    (size) > BUDDY_CHUNK_SIZE(BUDDY_MAX_ORDER - 1)) { \
+			__order = -1;                                 \
+		} else {                                              \
+			while ((size) > BUDDY_CHUNK_SIZE(__order)) {  \
+				__order++;                            \
+			}                                             \
+		}                                                     \
+		__order;                                              \
+	})
 
 #define pfn_to_page(pfn) (memory_region_g.page_arrry + pfn)
 #define page_to_pfn(page) ((unsigned long)((page)-memory_region_g.page_arrry))

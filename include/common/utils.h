@@ -3,7 +3,7 @@
 
 #include <common/types.h>
 
-void memcpy(void *dst, const void *src, size_t size)
+static inline void memcpy(void *dst, const void *src, size_t size)
 {
 	char *d = (char *)dst;
 	const char *s = (char *)src;
