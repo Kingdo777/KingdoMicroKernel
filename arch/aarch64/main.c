@@ -1,3 +1,4 @@
+#include <arch/machine/smp.h>
 #include <arch/mm/page_table.h>
 #include <arch/boot.h>
 #include <machine.h>
@@ -25,6 +26,10 @@ void main(paddr_t boot_flag, void *physmem_info)
 
 	lock_init(&big_kernel_lock);
 	kinfo("big_kernel_lock init finished\n");
+
+	/* 初始化主核的信息 */
+	init_per_cpu_info(0);
+	kinfo("[ChCore] per-CPU info init finished\n");
 
 	/* Init mm */
 	mm_init(physmem_info);
