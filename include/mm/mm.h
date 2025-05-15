@@ -1,11 +1,14 @@
 #ifndef MM_MM_H
 #define MM_MM_H
 
+#include <arch/mmu.h>
 #include <common/lock.h>
 #include <common/list.h>
 #include <mm/page_table.h>
 #include <mm/buddy.h>
 #include <mm/slab.h>
+
+#define PAGE_SIZE (1UL << PAGE_SHIFT)
 
 /* Execute once during kernel init. */
 void mm_init(void *physmem_info);

@@ -6,6 +6,36 @@
 #define ZERO_SIZE_PTR ((void *)(-1UL))
 #define IS_VALID_PTR(ptr) ((ptr) != NULL && (ptr) != ZERO_SIZE_PTR)
 
+void *get_pages(int order)
+{
+	struct page *page = NULL;
+	void *addr;
+
+	page = buddy_get_pages(order);
+
+	if (unlikely(!page)) {
+		kwarn("[OOM] Cannot get page from Buddy!\n");
+		return NULL;
+	}
+
+	addr = page_to_virt(page);
+
+	return addr;
+}
+
+void free_pages(void *addr)
+{
+	struct page *page;
+
+	page = virt_to_page(addr);
+	if (!page) {
+		kdebug("invalid page in %s", __func__);
+		return;
+	}
+
+	buddy_free_pages(page);
+}
+
 void *__kmalloc(size_t size, size_t *real_size)
 {
 	struct page *page;
@@ -16,7 +46,7 @@ void *__kmalloc(size_t size, size_t *real_size)
 		return slab_alloc(size);
 	} else if (size <= BUDDY_CHUNK_SIZE(BUDDY_MAX_ORDER - 1)) {
 		*real_size = BUDDY_CHUNK_SIZE(size_to_page_order(size));
-		return page_to_virt(buddy_get_pages(size_to_page_order(size)));
+		return get_pages(size_to_page_order(size));
 	} else {
 		kwarn("kmalloc size %zu is too large\n", size);
 		return NULL;
@@ -63,7 +93,7 @@ void kfree(void *ptr)
 	if (page->slab) {
 		slab_free(ptr);
 	} else if (page) {
-		buddy_free_pages(page);
+		free_pages(ptr);
 	} else {
 		kwarn("unexpected state in %s\n", __func__);
 	}
