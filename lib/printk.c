@@ -2,370 +2,351 @@
 #include <common/macro.h>
 #include <io/uart.h>
 
-static void uint_to_str(unsigned long num, char *buffer, int base,
-			int uppercase)
+#define PRINT_BUF_LEN 64
+
+static void simple_outputchar(char **str, char c)
 {
-	const char *digits = uppercase ? "0123456789ABCDEF" :
-					 "0123456789abcdef";
-	int i = 0;
-
-	if (num == 0) {
-		buffer[i++] = '0';
+	if (str) {
+		**str = c;
+		++(*str);
 	} else {
-		while (num != 0) {
-			unsigned long rem = num % base;
-			buffer[i++] = digits[rem];
-			num = num / base;
-		}
+		uart_send(c);
 	}
-
-	// 反转字符串
-	int left = 0, right = i - 1;
-	while (left < right) {
-		char tmp = buffer[left];
-		buffer[left] = buffer[right];
-		buffer[right] = tmp;
-		left++;
-		right--;
-	}
-	buffer[i] = '\0';
 }
 
-// 有符号数字转字符串（十进制专用）
-static void int_to_str(long num, char *buffer)
-{
-	int i = 0;
-	int is_negative = 0;
+enum flags { PAD_ZERO = 1, PAD_RIGHT = 2 };
 
-	if (num < 0) {
-		is_negative = 1;
-		num = -num;
+static int prints(char **out, const char *string, int width, int flags)
+{
+	int pc = 0, padchar = ' ';
+
+	if (width > 0) {
+		int len = 0;
+		const char *ptr;
+		for (ptr = string; *ptr; ++ptr)
+			++len;
+		if (len >= width)
+			width = 0;
+		else
+			width -= len;
+		if (flags & PAD_ZERO)
+			padchar = '0';
+	}
+	if (!(flags & PAD_RIGHT)) {
+		for (; width > 0; --width) {
+			simple_outputchar(out, padchar);
+			++pc;
+		}
+	}
+	for (; *string; ++string) {
+		simple_outputchar(out, *string);
+		++pc;
+	}
+	for (; width > 0; --width) {
+		simple_outputchar(out, padchar);
+		++pc;
 	}
 
-	if (num == 0) {
-		buffer[i++] = '0';
-	} else {
-		while (num != 0) {
-			buffer[i++] = (num % 10) + '0';
-			num /= 10;
+	return pc;
+}
+
+static int simple_outputi(char **out, long i, int base, int sign, int width,
+			  int flags, int letbase)
+{
+	char print_buf[PRINT_BUF_LEN];
+	char *s;
+	int t, neg = 0, pc = 0;
+	unsigned long u = i;
+
+	if (i == 0) {
+		print_buf[0] = '0';
+		print_buf[1] = '\0';
+		return prints(out, print_buf, width, flags);
+	}
+
+	if (sign && base == 10 && i < 0) {
+		neg = 1;
+		u = -i;
+	}
+
+	s = print_buf + PRINT_BUF_LEN - 1;
+	*s = '\0';
+
+	while (u) {
+		t = u % base;
+		if (t >= 10)
+			t += letbase - '0' - 10;
+		*--s = t + '0';
+		u /= base;
+	}
+
+	if (neg) {
+		if (width && (flags & PAD_ZERO)) {
+			simple_outputchar(out, '-');
+			++pc;
+			--width;
+		} else {
+			*--s = '-';
 		}
 	}
 
-	if (is_negative)
-		buffer[i++] = '-';
+	return pc + prints(out, s, width, flags);
+}
 
-	buffer[i] = '\0';
+static int simple_vsprintf(char **out, const char *format, va_list ap)
+{
+	int width, flags;
+	int pc = 0;
+	char scr[2];
+	union {
+		char c;
+		char *s;
+		int i;
+		unsigned int u;
+		long li;
+		unsigned long lu;
+		long long lli;
+		unsigned long long llu;
+		short hi;
+		unsigned short hu;
+		signed char hhi;
+		unsigned char hhu;
+		void *p;
+	} u;
 
-	// 反转字符串
-	int left = 0, right = i - 1;
-	while (left < right) {
-		char tmp = buffer[left];
-		buffer[left] = buffer[right];
-		buffer[right] = tmp;
-		left++;
-		right--;
+	for (; *format != 0; ++format) {
+		if (*format == '%') {
+			++format;
+			width = flags = 0;
+			if (*format == '\0')
+				break;
+			if (*format == '%')
+				goto out;
+			if (*format == '-') {
+				++format;
+				flags = PAD_RIGHT;
+			}
+			while (*format == '0') {
+				++format;
+				flags |= PAD_ZERO;
+			}
+			if (*format == '*') {
+				width = va_arg(ap, int);
+				format++;
+			} else {
+				for (; *format >= '0' && *format <= '9';
+				     ++format) {
+					width *= 10;
+					width += *format - '0';
+				}
+			}
+			switch (*format) {
+			case ('d'):
+				u.i = va_arg(ap, int);
+				pc += simple_outputi(out, u.i, 10, 1, width,
+						     flags, 'a');
+				break;
+
+			case ('b'):
+				u.i = va_arg(ap, int);
+				pc += simple_outputi(out, u.i, 2, 1, width,
+						     flags, 'a');
+				break;
+
+			case ('u'):
+				u.u = va_arg(ap, unsigned int);
+				pc += simple_outputi(out, u.u, 10, 0, width,
+						     flags, 'a');
+				break;
+
+			case ('p'):
+				u.llu = va_arg(ap, unsigned long);
+				pc += simple_outputi(out, u.llu, 16, 0, width,
+						     flags, 'a');
+				break;
+
+			case ('x'):
+				u.u = va_arg(ap, unsigned int);
+				pc += simple_outputi(out, u.u, 16, 0, width,
+						     flags, 'a');
+				break;
+
+			case ('X'):
+				u.u = va_arg(ap, unsigned int);
+				pc += simple_outputi(out, u.u, 16, 0, width,
+						     flags, 'A');
+				break;
+
+			case ('c'):
+				u.c = va_arg(ap, int);
+				scr[0] = u.c;
+				scr[1] = '\0';
+				pc += prints(out, scr, width, flags);
+				break;
+
+			case ('s'):
+				u.s = va_arg(ap, char *);
+				pc += prints(out, u.s ? u.s : "(null)", width,
+					     flags);
+				break;
+			case ('l'):
+				++format;
+				switch (*format) {
+				case ('d'):
+					u.li = va_arg(ap, long);
+					pc += simple_outputi(out, u.li, 10, 1,
+							     width, flags, 'a');
+					break;
+
+				case ('u'):
+					u.lu = va_arg(ap, unsigned long);
+					pc += simple_outputi(out, u.lu, 10, 0,
+							     width, flags, 'a');
+					break;
+
+				case ('x'):
+					u.lu = va_arg(ap, unsigned long);
+					pc += simple_outputi(out, u.lu, 16, 0,
+							     width, flags, 'a');
+					break;
+
+				case ('X'):
+					u.lu = va_arg(ap, unsigned long);
+					pc += simple_outputi(out, u.lu, 16, 0,
+							     width, flags, 'A');
+					break;
+
+				case ('l'):
+					++format;
+					switch (*format) {
+					case ('d'):
+						u.lli = va_arg(ap, long long);
+						pc += simple_outputi(
+							out, u.lli, 10, 1,
+							width, flags, 'a');
+						break;
+
+					case ('u'):
+						u.llu = va_arg(
+							ap, unsigned long long);
+						pc += simple_outputi(
+							out, u.llu, 10, 0,
+							width, flags, 'a');
+						break;
+
+					case ('x'):
+						u.llu = va_arg(
+							ap, unsigned long long);
+						pc += simple_outputi(
+							out, u.llu, 16, 0,
+							width, flags, 'a');
+						break;
+
+					case ('X'):
+						u.llu = va_arg(
+							ap, unsigned long long);
+						pc += simple_outputi(
+							out, u.llu, 16, 0,
+							width, flags, 'A');
+						break;
+
+					default:
+						break;
+					}
+					break;
+				default:
+					break;
+				}
+				break;
+			case ('h'):
+				++format;
+				switch (*format) {
+				case ('d'):
+					u.hi = va_arg(ap, int);
+					pc += simple_outputi(out, u.hi, 10, 1,
+							     width, flags, 'a');
+					break;
+
+				case ('u'):
+					u.hu = va_arg(ap, unsigned int);
+					pc += simple_outputi(out, u.lli, 10, 0,
+							     width, flags, 'a');
+					break;
+
+				case ('x'):
+					u.hu = va_arg(ap, unsigned int);
+					pc += simple_outputi(out, u.lli, 16, 0,
+							     width, flags, 'a');
+					break;
+
+				case ('X'):
+					u.hu = va_arg(ap, unsigned int);
+					pc += simple_outputi(out, u.lli, 16, 0,
+							     width, flags, 'A');
+					break;
+
+				case ('h'):
+					++format;
+					switch (*format) {
+					case ('d'):
+						u.hhi = va_arg(ap, int);
+						pc += simple_outputi(
+							out, u.hhi, 10, 1,
+							width, flags, 'a');
+						break;
+
+					case ('u'):
+						u.hhu = va_arg(ap,
+							       unsigned int);
+						pc += simple_outputi(
+							out, u.lli, 10, 0,
+							width, flags, 'a');
+						break;
+
+					case ('x'):
+						u.hhu = va_arg(ap,
+							       unsigned int);
+						pc += simple_outputi(
+							out, u.lli, 16, 0,
+							width, flags, 'a');
+						break;
+
+					case ('X'):
+						u.hhu = va_arg(ap,
+							       unsigned int);
+						pc += simple_outputi(
+							out, u.lli, 16, 0,
+							width, flags, 'A');
+						break;
+
+					default:
+						break;
+					}
+					break;
+				default:
+					break;
+				}
+				break;
+			default:
+				break;
+			}
+		} else {
+out:
+			if (*format == '\n')
+				simple_outputchar(out, '\r');
+			simple_outputchar(out, *format);
+			++pc;
+		}
 	}
+	if (out)
+		**out = '\0';
+	return pc;
 }
 
 void printk(const char *fmt, ...)
 {
-	va_list args;
-	va_start(args, fmt);
-
-	while (*fmt) {
-		if (*fmt != '%') {
-			if (*fmt == '\n') {
-				uart_send('\r'); // 强制回车
-			}
-			uart_send(*fmt);
-			fmt++;
-			continue;
-		}
-
-		fmt++; // 跳过%
-		switch (*fmt) {
-		case '%':
-			uart_send('%');
-			break;
-
-		case 'c': {
-			int c = va_arg(args, int);
-			uart_send(c);
-			break;
-		}
-
-		case 's': {
-			char *s = va_arg(args, char *);
-			while (*s)
-				uart_send(*s++);
-			break;
-		}
-
-		case 'd': { // 32位有符号
-			int num = va_arg(args, int);
-			char buffer[24];
-			int_to_str(num, buffer);
-			for (char *p = buffer; *p; p++)
-				uart_send(*p);
-			break;
-		}
-
-		case 'u': { // 32位无符号
-			unsigned int num = va_arg(args, unsigned int);
-			char buffer[24];
-			uint_to_str(num, buffer, 10, 0);
-			for (char *p = buffer; *p; p++)
-				uart_send(*p);
-			break;
-		}
-
-		case 'p': { // 指针类型
-			void *ptr = va_arg(args, void *);
-			unsigned long num = (unsigned long)ptr;
-			char buffer[24];
-			uart_send('0');
-			uart_send('x'); // 添加0x前缀
-			uint_to_str(num, buffer, 16, 0);
-			for (char *p = buffer; *p; p++)
-				uart_send(*p);
-			break;
-		}
-
-		case 'l': { // 长整型处理
-			fmt++;
-			switch (*fmt) {
-			case 'd': { // 64位有符号
-				long num = va_arg(args, long);
-				char buffer[24];
-				int_to_str(num, buffer);
-				for (char *p = buffer; *p; p++)
-					uart_send(*p);
-				break;
-			}
-
-			case 'u': { // 64位无符号
-				unsigned long num = va_arg(args, unsigned long);
-				char buffer[24];
-				uint_to_str(num, buffer, 10, 0);
-				for (char *p = buffer; *p; p++)
-					uart_send(*p);
-				break;
-			}
-
-			case 'x': { // 64位十六进制
-				unsigned long num = va_arg(args, unsigned long);
-				char buffer[24];
-				uint_to_str(num, buffer, 16, 0);
-				for (char *p = buffer; *p; p++)
-					uart_send(*p);
-				break;
-			}
-
-			default:
-				uart_send('l');
-				uart_send(*fmt);
-				break;
-			}
-			break;
-		}
-
-		default:
-			uart_send('%');
-			uart_send(*fmt);
-			break;
-		}
-		fmt++;
-	}
-
-	va_end(args);
-}
-
-int snprintf(char *buf, size_t size, const char *fmt, ...)
-{
-	va_list args;
-	va_start(args, fmt);
-
-	char *ptr = buf;
-	size_t remaining = size ? size - 1 : 0; // 保留终止符空间
-	int total_len = 0;
-
-	while (*fmt) {
-		if (*fmt != '%') {
-			// 直接复制普通字符
-			if (remaining > 0) {
-				*ptr++ = *fmt;
-				remaining--;
-			}
-			total_len++;
-			fmt++;
-			continue;
-		}
-
-		// 处理格式说明符
-		fmt++;
-		switch (*fmt) {
-		case '%': {
-			if (remaining > 0) {
-				*ptr++ = '%';
-				remaining--;
-			}
-			total_len++;
-			break;
-		}
-
-		case 'c': {
-			int c = va_arg(args, int);
-			if (remaining > 0) {
-				*ptr++ = (char)c;
-				remaining--;
-			}
-			total_len++;
-			break;
-		}
-
-		case 's': {
-			char *s = va_arg(args, char *);
-			if (!s)
-				s = "(null)";
-			while (*s) {
-				if (remaining > 0) {
-					*ptr++ = *s;
-					remaining--;
-				}
-				s++;
-				total_len++;
-			}
-			break;
-		}
-
-		case 'd': {
-			int num = va_arg(args, int);
-			char tmp[24];
-			int_to_str(num, tmp);
-			for (char *p = tmp; *p; p++) {
-				if (remaining > 0) {
-					*ptr++ = *p;
-					remaining--;
-				}
-				total_len++;
-			}
-			break;
-		}
-
-		case 'u': {
-			unsigned int num = va_arg(args, unsigned int);
-			char tmp[24];
-			uint_to_str(num, tmp, 10, 0);
-			for (char *p = tmp; *p; p++) {
-				if (remaining > 0) {
-					*ptr++ = *p;
-					remaining--;
-				}
-				total_len++;
-			}
-			break;
-		}
-
-		case 'p': {
-			void *addr = va_arg(args, void *);
-			char tmp[24];
-			uint_to_str((unsigned long)addr, tmp, 16, 0);
-			// 添加 "0x" 前缀
-			for (const char *pre = "0x"; *pre; pre++) {
-				if (remaining > 0) {
-					*ptr++ = *pre;
-					remaining--;
-				}
-				total_len++;
-			}
-			for (char *p = tmp; *p; p++) {
-				if (remaining > 0) {
-					*ptr++ = *p;
-					remaining--;
-				}
-				total_len++;
-			}
-			break;
-		}
-
-		case 'l': {
-			fmt++; // 处理 long 类型
-			switch (*fmt) {
-			case 'd': {
-				long num = va_arg(args, long);
-				char tmp[24];
-				int_to_str(num, tmp);
-				for (char *p = tmp; *p; p++) {
-					if (remaining > 0) {
-						*ptr++ = *p;
-						remaining--;
-					}
-					total_len++;
-				}
-				break;
-			}
-
-			case 'u': {
-				unsigned long num = va_arg(args, unsigned long);
-				char tmp[24];
-				uint_to_str(num, tmp, 10, 0);
-				for (char *p = tmp; *p; p++) {
-					if (remaining > 0) {
-						*ptr++ = *p;
-						remaining--;
-					}
-					total_len++;
-				}
-				break;
-			}
-
-			case 'x': {
-				unsigned long num = va_arg(args, unsigned long);
-				char tmp[24];
-				uint_to_str(num, tmp, 16, 0);
-				for (char *p = tmp; *p; p++) {
-					if (remaining > 0) {
-						*ptr++ = *p;
-						remaining--;
-					}
-					total_len++;
-				}
-				break;
-			}
-
-			default: // 无效格式
-				if (remaining > 0) {
-					*ptr++ = 'l';
-					remaining--;
-					total_len++;
-				}
-				fmt--; // 回退以处理未知字符
-				break;
-			}
-			break;
-		}
-
-		default: { // 未知格式符
-			if (remaining > 0) {
-				*ptr++ = '%';
-				*ptr++ = *fmt;
-				remaining = remaining > 1 ? remaining - 2 : 0;
-			}
-			total_len += 2;
-			break;
-		}
-		}
-		fmt++;
-	}
-
-	// 确保终止符
-	if (size > 0)
-		*ptr = '\0';
-	va_end(args);
-	return total_len;
-}
-
-int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
-{
-	return snprintf(buf, size, fmt, args);
+	va_list va;
+	va_start(va, fmt);
+	simple_vsprintf(NULL, fmt, va);
+	va_end(va);
 }
