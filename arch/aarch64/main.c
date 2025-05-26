@@ -6,6 +6,7 @@
 #include <common/macro.h>
 #include <common/kprint.h>
 #include <common/lock.h>
+#include <common/poweroff.h>
 #include <mm/mm.h>
 
 /* 临时内核栈，真正栈帧由KSTACKx_ADDR(cpuid)计算，此时还没有将其写入页表 */
@@ -41,8 +42,8 @@ void main(paddr_t boot_flag, void *physmem_info)
 		(unsigned long)(cpu_stacks[0]) - KBASE, CPU_STACK_SIZE,
 		VMR_READ | VMR_WRITE);
 
-	while (1)
-		;
+	/// 关机
+	plat_poweroff();
 }
 
 void secondary_start(u32 cpuid)
