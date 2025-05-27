@@ -2,13 +2,12 @@
 #include <arch/machine/esr.h>
 #include <common/utils.h>
 #include <common/macro.h>
-#include "irq_entry.h"  
+#include "irq_entry.h"
 
 u8 irq_handle_type[MAX_IRQ_NUM];
 
 void arch_interrupt_init_per_cpu(void)
 {
-	
 	disable_irq();
 	set_exception_vector();
 	plat_interrupt_init();
@@ -16,7 +15,7 @@ void arch_interrupt_init_per_cpu(void)
 
 void arch_interrupt_init(void)
 {
-	arch_interrupt_init_per_cpu(); 
+	arch_interrupt_init_per_cpu();
 	memset(irq_handle_type, HANDLE_KERNEL, MAX_IRQ_NUM);
 }
 
@@ -26,7 +25,8 @@ u64 handle_sync(int type, u64 esr, u64 address)
 	u32 esr_ec = GET_ESR_EL1_EC(esr);
 
 	kdebug("Exception type: %d, ESR: 0x%lx, Fault address: 0x%lx, "
-	       "EC 0b%b\n", type, esr, address, esr_ec);
+	       "EC 0b%b\n",
+	       type, esr, address, esr_ec);
 
 	if (type < SYNC_EL0_64) {
 		if (esr_ec != ESR_EL1_EC_DABT_CEL) {
@@ -77,7 +77,7 @@ u64 handle_sync(int type, u64 esr, u64 address)
 		// do_page_fault(esr, address, type, &fix_addr);
 		if (fix_addr)
 			return fix_addr;
-		else 
+		else
 			return address;
 	case ESR_EL1_EC_SP_ALIGN:
 		kdebug("SP alignment fault exception\n");
@@ -97,7 +97,8 @@ u64 handle_sync(int type, u64 esr, u64 address)
 	}
 
 	BUG("Exception type: %d, ESR: 0x%lx, Fault address: 0x%lx, "
-	    "EC 0b%b\n", type, esr, address, esr_ec);
+	    "EC 0b%b\n",
+	    type, esr, address, esr_ec);
 	__builtin_unreachable();
 }
 

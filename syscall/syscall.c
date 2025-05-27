@@ -11,16 +11,16 @@
 /* Placeholder for system calls that are not implemented */
 int sys_null_placeholder(void)
 {
-        kwarn("Invoke non-implemented syscall\n");
-        return -EBADSYSCALL;
+	kwarn("Invoke non-implemented syscall\n");
+	return -EBADSYSCALL;
 }
 
 void sys_poweroff(void)
 {
-        plat_poweroff();
+	plat_poweroff();
 }
 
 const void *syscall_table[NR_SYSCALL] = {
-        [0 ... NR_SYSCALL - 1] = sys_null_placeholder,
-        [KMK_SYS_poweroff] = sys_poweroff,
+	[0 ... NR_SYSCALL - 1] = sys_null_placeholder,
+	[KMK_SYS_poweroff] = sys_poweroff,
 };

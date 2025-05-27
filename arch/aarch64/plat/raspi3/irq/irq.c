@@ -12,13 +12,13 @@
  * Refer to BROADCOM BCM2835 manual (no official BCM2837 manual).
  * The IRQ details are the same on 2835 and 2837.
  */
-#define IRQ_USB            (9)
-#define IRQ_USB_BIT        (1 << IRQ_USB)
-#define IRQ_SDIO           (32 + 24)
-#define IRQ_SDIO_BIT       (1 << (IRQ_SDIO - 32))
-#define IRQ_UART           (32 + 25)
-#define IRQ_UART_BIT       (1 << (IRQ_UART - 32))
-#define IRQ_ARASANSDIO     (32 + 30)
+#define IRQ_USB (9)
+#define IRQ_USB_BIT (1 << IRQ_USB)
+#define IRQ_SDIO (32 + 24)
+#define IRQ_SDIO_BIT (1 << (IRQ_SDIO - 32))
+#define IRQ_UART (32 + 25)
+#define IRQ_UART_BIT (1 << (IRQ_UART - 32))
+#define IRQ_ARASANSDIO (32 + 30)
 #define IRQ_ARASANSDIO_BIT (1 << (IRQ_ARASANSDIO - 32))
 
 /* Per core IRQ SOURCE MMIO address */
@@ -47,10 +47,13 @@ static void interrupt_init(void)
 		once = 0;
 
 		/* 在初始化阶段关闭所有中断，避免未配置的中断意外触发 */
-		put32(BCM2835_IRQ_FIQ_CTRL, 0); 	// 禁用FIQ和IRQ
-		put32(BCM2835_IRQ_DISABLE1, (u32)-1);	// 禁用所有IRQ1类型中断，如USB、DMA等
-		put32(BCM2835_IRQ_DISABLE2, (u32)-1);	// 禁用所有IRQ2类型中断，如GPU相关中断
-		put32(BCM2835_IRQ_DISABLE_BASIC, (u32)-1);	// 禁用所有BASIC类型中断，如系统定时器、邮箱中断等
+		put32(BCM2835_IRQ_FIQ_CTRL, 0); // 禁用FIQ和IRQ
+		put32(BCM2835_IRQ_DISABLE1,
+		      (u32)-1); // 禁用所有IRQ1类型中断，如USB、DMA等
+		put32(BCM2835_IRQ_DISABLE2,
+		      (u32)-1); // 禁用所有IRQ2类型中断，如GPU相关中断
+		put32(BCM2835_IRQ_DISABLE_BASIC,
+		      (u32)-1); // 禁用所有BASIC类型中断，如系统定时器、邮箱中断等
 
 		/* 通过“读-写回”操作清除未处理的中断（ACK）,避免误触发 */
 		put32(BCM2835_IRQ_BASIC, get32(BCM2835_IRQ_BASIC));
@@ -60,10 +63,10 @@ static void interrupt_init(void)
 		/* 启用USB中断 */
 		plat_enable_irqno(IRQ_USB);
 
-		#if USE_mini_uart == 0
+#if USE_mini_uart == 0
 		/* Enable uart (pl011) irq */
 		enable_uart_irq(IRQ_UART);
-		#endif
+#endif
 
 		isb();
 		smp_mb();
@@ -72,7 +75,7 @@ static void interrupt_init(void)
 
 void plat_interrupt_init(void)
 {
-	interrupt_init();	// 初始化中断
+	interrupt_init(); // 初始化中断
 }
 
 void plat_enable_irqno(int irq)
@@ -103,12 +106,11 @@ void plat_handle_irq(void)
 
 	irq = get32(BCM2835_IRQ_PENDING2);
 	if (irq != 0) {
-
-		#if USE_mini_uart == 0
+#if USE_mini_uart == 0
 		if (irq & IRQ_UART_BIT) {
 			uart_irq_handler();
 		}
-		#endif /* By default, PL011 is used */
+#endif /* By default, PL011 is used */
 	}
 
 	return;
