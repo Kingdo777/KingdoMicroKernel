@@ -1,5 +1,6 @@
 #include <arch/machine/smp.h>
 #include <arch/mm/page_table.h>
+#include <irq/irq.h>
 #include <arch/boot.h>
 #include <machine.h>
 #include <common/types.h>
@@ -15,6 +16,7 @@ char cpu_stacks[PLAT_CPU_NUM][CPU_STACK_SIZE] ALIGN(STACK_ALIGNMENT);
 char empty_page[4096] ALIGN(PAGE_SIZE);
 
 struct lock big_kernel_lock;
+void enable_irq(void);
 
 /*
  * @boot_flag: 从核可以正式启动时设置的标志
@@ -30,7 +32,7 @@ void main(paddr_t boot_flag, void *physmem_info)
 
 	/* 初始化主核的信息 */
 	init_per_cpu_info(0);
-	kinfo("[ChCore] per-CPU info init finished\n");
+	kinfo("per-CPU info init finished\n");
 
 	/* Init mm */
 	mm_init(physmem_info);
@@ -41,6 +43,14 @@ void main(paddr_t boot_flag, void *physmem_info)
 		(void *)((unsigned long)boot_ttbr1_l0 + KBASE), KSTACKx_ADDR(0),
 		(unsigned long)(cpu_stacks[0]) - KBASE, CPU_STACK_SIZE,
 		VMR_READ | VMR_WRITE);
+
+	/* 初始化 */
+	arch_interrupt_init();
+
+	enable_irq();
+
+	while (1)
+		;
 
 	/// 关机
 	plat_poweroff();

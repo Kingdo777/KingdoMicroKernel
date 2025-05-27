@@ -1,3 +1,4 @@
+#include <irq/irq.h>
 #include <io/uart.h>
 #include "uart.h"
 
@@ -86,6 +87,58 @@ typedef struct uart_buffer {
 } uart_buffer_t;
 
 uart_buffer_t pl011_buffer;
+
+/**
+ * @brief 配置 PL011 UART 控制器，使其在接收到数据时触发中断（IRQ）
+ */
+void enable_uart_irq(int irq_num)
+{
+	/* 清除未处理中断（Pending IRQ） */
+	put32(RASPI3_PL011_ICR, 0x7ff);
+	/* 写入 1 << 4（即 0x10）启用 ​​接收中断（RXIM）​​，表示当 UART 接收缓冲区有数据时触发中断 */
+	put32(RASPI3_PL011_IMSC, 1 << 4);
+	/* 配置 FIFO 触发阈值，接收2字节或FIFO​​完全为空且新数据到达后触发中断*/
+	put32(RASPI3_PL011_IFLS, 0);
+
+	/* 初始化一个环形缓冲区（pl011_buffer），用于存储 UART 接收到的数据 */
+	pl011_buffer.read_pos = 0;
+	pl011_buffer.put_pos = 0;
+
+	plat_enable_irqno(irq_num);
+}
+/**
+ * @brief PL011 UART 中断处理函数
+ * 	  当 PL011 UART 接收到数据时，硬件触发中断，CPU 跳转到此函数处理数据
+ */
+void uart_irq_handler(void)
+{
+	char input;
+
+	/* 读取数据寄存器，保留低8位 */
+	input = get32(RASPI3_PL011_DR) & 0xFF;
+	uart_send(input); // 数据回显（Echo）
+
+	/* 读取 DR 会自动清除接收中断标志 (无需手动写 ICR) */
+	// put32(RASPI3_PL011_ICR, 0x7ff);
+
+	pl011_buffer.buffer[pl011_buffer.put_pos] = input;
+
+	/*
+	 * The internal fifo buffer is a ring buffer.
+	 * Here is updating the put_pos.
+	 */
+	/* 数据存入环形缓冲区​ */
+	pl011_buffer.put_pos += 1;
+	if (pl011_buffer.put_pos == UART_BUF_LEN)
+		pl011_buffer.put_pos = 0;
+
+	/* 处理缓冲区溢出​, 丢弃最旧的数据（read_pos 后移），腾出空间 */
+	if (pl011_buffer.read_pos == pl011_buffer.put_pos) {
+		pl011_buffer.read_pos += 1;
+		if (pl011_buffer.read_pos == UART_BUF_LEN)
+			pl011_buffer.read_pos = 0;
+	}
+}
 
 void uart_init(void)
 {

@@ -139,6 +139,11 @@
 #define ERFKILL 132
 #define EHWPOISON 133
 
+#define EIPCRETRY 199 /* Retry the IPC call */
+#define ECAPBILITY 200 /* Invalid capability */
+#define EBADSYSCALL 202 /* Bad syscall number */
+#define ENOMAPPING 203 /* No memory mapping in pgtbl */
+
 #define EMAX 205
 
 #define ERR_PTR(x) ((void *)(long)(x))

@@ -39,7 +39,7 @@ list(APPEND _compile_options -Wno-unused-function) # 忽略未使用的函数警
 # Generic compile settings
 list(APPEND _compile_options -nostdinc) # 禁用标准头文件搜索路径
 list(APPEND _compile_options -ffreestanding) # 告诉编译器代码运行在裸机环境中，禁用标准库依赖，适用于 ​​内核、Bootloader、嵌入式固件​​ 等场景
-list(APPEND _c_compile_options -O0 -g) # C编译器优化选项，设置为-O0，表示不进行优化并启用调试信息
+list(APPEND _c_compile_options) # C编译器优化选项，设置为-O0，表示不进行优化并启用调试信息
 list(APPEND _asm_compile_options) # 汇编器编译选项，当前为空
 list(APPEND _compile_definitions) # 定义编译器宏, 当前为空
 list(APPEND _c_compile_definitions) # C编译器宏, 当前为空
@@ -69,3 +69,4 @@ target_include_directories(${kernel_target} PRIVATE include/arch/${KMK_ARCH}/pla
 add_subdirectory(arch/${KMK_ARCH})
 add_subdirectory(lib)
 add_subdirectory(mm)
+add_subdirectory(syscall)

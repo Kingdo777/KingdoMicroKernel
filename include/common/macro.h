@@ -51,7 +51,7 @@
 #define BUG(str, ...)                                                   \
 	do {                                                            \
 		printk("BUG: %s:%d in %s" str "\n", __FILE__, __LINE__, \
-		       __func__##__VA_ARGS__);                          \
+		       __func__, ##__VA_ARGS__);                        \
 		backtrace();                                            \
 		for (;;) {                                              \
 		}                                                       \
