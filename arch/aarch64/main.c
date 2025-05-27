@@ -1,6 +1,7 @@
 #include <arch/machine/smp.h>
 #include <arch/mm/page_table.h>
 #include <irq/irq.h>
+#include <irq/timer.h>
 #include <arch/boot.h>
 #include <machine.h>
 #include <common/types.h>
@@ -46,11 +47,8 @@ void main(paddr_t boot_flag, void *physmem_info)
 
 	/* 初始化 */
 	arch_interrupt_init();
-
-	enable_irq();
-
-	while (1)
-		;
+	timer_init();
+	kinfo("interrupt init finished\n");
 
 	/// 关机
 	plat_poweroff();

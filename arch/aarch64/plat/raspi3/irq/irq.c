@@ -1,9 +1,11 @@
 #include <irq/irq.h>
+#include <irq/timer.h>
 #include <common/kprint.h>
 #include <io/uart.h>
 #include <machine.h>
 #include <common/types.h>
 #include <common/macro.h>
+#include <common/bitops.h>
 #include <arch/machine/smp.h>
 #include <arch/sync.h>
 #include <arch/tools.h>
@@ -21,7 +23,7 @@
 #define IRQ_ARASANSDIO (32 + 30)
 #define IRQ_ARASANSDIO_BIT (1 << (IRQ_ARASANSDIO - 32))
 
-/* Per core IRQ SOURCE MMIO address */
+/* 核心本地中断的 MMIO 映射地址 */
 u64 core_irq_source[PLAT_CPU_NUM] = {
 	CORE0_IRQ_SOURCE,
 	CORE1_IRQ_SOURCE,
@@ -94,12 +96,42 @@ void plat_disable_irqno(int irq)
 		put32(BCM2835_IRQ_DISABLE2, (1 << (irq - 32)));
 }
 
+/**
+ * @brief 中断处理函数
+ * 存在两种类型中断：
+ * ​​核心本地中断​​：通过core_irq_source寄存器处理（如定时器中断）
+​ * ​外设中断​​：通过BCM2835_IRQ寄存器处理（如UART中断）
+ * +-------------------+       +-----------------------+
+ * | ARM Cortex-A53    |       | Broadcom Interrupt   |
+ * | Core Interrupts   |<----->| Controller           |
+ * | (Timer, etc.)     |       | (UART, GPIO, etc.)   |
+ * +-------------------+       +-----------------------+
+ * ^                            ^
+ * |                            |
+ * +-------------------+       +-----------------------+
+ * | core_irq_source[] |       | BCM2835_IRQ          |
+ * | (本地中断状态)     |       | (外设中断状态)        |
+ * +-------------------+       +-----------------------+
+ */
+
 void plat_handle_irq(void)
 {
 	u32 cpuid = 0;
-	unsigned int irq;
+	unsigned int irq, irq_src;
 
 	cpuid = smp_get_cpu_id();
+	irq_src = get32(core_irq_source[cpuid]);
+
+	/* 如果存在多个中断源，仅获取中断源的最低有效位， */
+	irq = 1 << ctzl(irq_src);
+	switch (irq) {
+	case INT_SRC_TIMER1:
+		handle_timer_irq();
+		return;
+	default:
+		kinfo("Unsupported IRQ %d\n", irq);
+		break;
+	}
 
 	/* By default, interrupts are routed to CPU 0. */
 	BUG_ON(cpuid != 0);
