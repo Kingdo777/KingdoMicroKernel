@@ -108,7 +108,7 @@ void init_kernel_pt(void)
 			| IS_VALID;
 	}
 	/* 1.3 以 1GB 页粒度映射 0x40000000~0xFFFFFFFF 的内存 */
-	for (; vaddr < SHARED_PERIPHERAL_END; vaddr += SIZE_1G) {
+	for (; vaddr < PHYSMEM_END; vaddr += SIZE_1G) {
 		boot_ttbr1_l1[GET_L1_INDEX(vaddr + KERNEL_VADDR)] =
 			(vaddr) | UXN | ACCESSED | NG |
 			DEVICE_MEMORY /* 设备内存 */
