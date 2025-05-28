@@ -1,4 +1,5 @@
 #include <arch/machine/smp.h>
+#include <arch/machine/pmu.h>
 #include <arch/mm/page_table.h>
 #include <irq/irq.h>
 #include <irq/timer.h>
@@ -49,6 +50,9 @@ void main(paddr_t boot_flag, void *physmem_info)
 	arch_interrupt_init();
 	timer_init();
 	kinfo("interrupt init finished\n");
+
+	pmu_init();
+	kinfo("pmu init finished\n");
 
 	/// 关机
 	plat_poweroff();
