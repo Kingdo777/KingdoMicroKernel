@@ -37,8 +37,7 @@ void plat_poweroff(void)
 	mbox[6] = 0; // bit 0: off, bit 1: no wait
 	mbox[7] = 0; // end tag
 
-	unsigned int r = (((unsigned int)virt_to_phys((vaddr_t)mbox) & ~0xF)) |
-			 (8 & 0xF);
+	unsigned int r = (((unsigned int)virt_to_phys((vaddr_t)mbox) & ~0xF)) | (8 & 0xF);
 
 	/* Wait until mailbox is not full */
 	while (*MBOX_STATUS & MBOX_FULL)

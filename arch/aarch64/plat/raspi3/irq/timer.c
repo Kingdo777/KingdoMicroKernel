@@ -12,9 +12,7 @@ u64 cntp_tval; // 定时器计数值，即间隔多久产生一次中断
 u64 tick_per_us; // 每微秒的tick数
 
 /* 每个CPU核心的定时器中断控制寄存器地址 */
-u64 core_timer_irqcntl[PLAT_CPU_NUM] = { CORE0_TIMER_IRQCNTL,
-					 CORE1_TIMER_IRQCNTL,
-					 CORE2_TIMER_IRQCNTL,
+u64 core_timer_irqcntl[PLAT_CPU_NUM] = { CORE0_TIMER_IRQCNTL, CORE1_TIMER_IRQCNTL, CORE2_TIMER_IRQCNTL,
 					 CORE3_TIMER_IRQCNTL };
 
 void plat_timer_init(void)

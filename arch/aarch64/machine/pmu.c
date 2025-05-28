@@ -15,12 +15,11 @@ void pmu_init(void)
 void enable_cpu_cnt(void)
 {
 	/* 允许用户态访问相关寄存器，而无需陷入到内核 */
-	asm volatile("msr pmuserenr_el0, %0" ::"r"(
-		PMUSERENR_EL0_EN // 允许用户态访问 PMU 寄存器
-		| PMUSERENR_EL0_SW // 允许用户态写入 PMSWINC_EL0
-		| PMUSERENR_EL0_CR // 允许用户态读取 PMCCNTR_EL0
-		| PMUSERENR_EL0_ER // 允许用户态读取 PMEVCNTRn_EL0
-		));
+	asm volatile("msr pmuserenr_el0, %0" ::"r"(PMUSERENR_EL0_EN // 允许用户态访问 PMU 寄存器
+						   | PMUSERENR_EL0_SW // 允许用户态写入 PMSWINC_EL0
+						   | PMUSERENR_EL0_CR // 允许用户态读取 PMCCNTR_EL0
+						   | PMUSERENR_EL0_ER // 允许用户态读取 PMEVCNTRn_EL0
+						   ));
 	/* 启用所有计数器，设置64位长 Cycle 计数器 */
 	asm volatile("msr pmcr_el0, %0" ::"r"(PMCR_EL0_LC | PMCR_EL0_E));
 	/* 启用Cycle计数器，开始统计 CPU 周期数 */

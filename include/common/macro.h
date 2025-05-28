@@ -24,8 +24,7 @@
 #define BIT(x) (1ULL << (x))
 
 #define offsetof(TYPE, MEMBER) ((size_t) & ((TYPE *)0)->MEMBER)
-#define container_of(ptr, type, field) \
-	((type *)((void *)(ptr) - (void *)(&(((type *)(0))->field))))
+#define container_of(ptr, type, field) ((type *)((void *)(ptr) - (void *)(&(((type *)(0))->field))))
 
 #define container_of_safe(ptr, type, field)                     \
 	({                                                      \
@@ -37,44 +36,40 @@
 #define MAX(x, y) ((x) < (y) ? (y) : (x))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
-#define BUG_ON(expr)                                                        \
-	do {                                                                \
-		if ((unlikely(expr))) {                                     \
-			printk("BUG: %s:%d in %s on (expr) %s\n", __FILE__, \
-			       __LINE__, __func__, #expr);                  \
-			backtrace();                                        \
-			for (;;) {                                          \
-			}                                                   \
-		}                                                           \
+#define BUG_ON(expr)                                                                                    \
+	do {                                                                                            \
+		if ((unlikely(expr))) {                                                                 \
+			printk("BUG: %s:%d in %s on (expr) %s\n", __FILE__, __LINE__, __func__, #expr); \
+			backtrace();                                                                    \
+			for (;;) {                                                                      \
+			}                                                                               \
+		}                                                                                       \
 	} while (0)
 
-#define BUG(str, ...)                                                   \
-	do {                                                            \
-		printk("BUG: %s:%d in %s" str "\n", __FILE__, __LINE__, \
-		       __func__, ##__VA_ARGS__);                        \
-		backtrace();                                            \
-		for (;;) {                                              \
-		}                                                       \
+#define BUG(str, ...)                                                                             \
+	do {                                                                                      \
+		printk("BUG: %s:%d in %s" str "\n", __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
+		backtrace();                                                                      \
+		for (;;) {                                                                        \
+		}                                                                                 \
 	} while (0)
 
 #define WARN(msg) printk("WARN: %s:%d %s\n", __func__, __LINE__, msg)
 
-#define WARN_ON(cond, msg)                                                \
-	do {                                                              \
-		if ((cond)) {                                             \
-			printk("WARN: %s:%d %s on " #cond "\n", __func__, \
-			       __LINE__, msg);                            \
-		}                                                         \
+#define WARN_ON(cond, msg)                                                                \
+	do {                                                                              \
+		if ((cond)) {                                                             \
+			printk("WARN: %s:%d %s on " #cond "\n", __func__, __LINE__, msg); \
+		}                                                                         \
 	} while (0)
 
-#define assert(expr)                                                        \
-	do {                                                                \
-		if (unlikely(!(expr))) {                                    \
-			printk("assertion failed: %s:%d in %s\n", __FILE__, \
-			       __LINE__, __func__);                         \
-			while (1)                                           \
-				;                                           \
-		}                                                           \
+#define assert(expr)                                                                             \
+	do {                                                                                     \
+		if (unlikely(!(expr))) {                                                         \
+			printk("assertion failed: %s:%d in %s\n", __FILE__, __LINE__, __func__); \
+			while (1)                                                                \
+				;                                                                \
+		}                                                                                \
 	} while (0)
 
 #ifdef __GNUC__

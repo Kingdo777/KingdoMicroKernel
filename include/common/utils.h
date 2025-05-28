@@ -63,8 +63,7 @@ static inline size_t strlen(const char *src)
 
 static inline int memcmp(const void *s1, const void *s2, size_t n)
 {
-	const unsigned char *l = (const unsigned char *)s1,
-			    *r = (const unsigned char *)s2;
+	const unsigned char *l = (const unsigned char *)s1, *r = (const unsigned char *)s2;
 	for (; n && *l == *r; n--, l++, r++)
 		;
 	return n ? *l - *r : 0;

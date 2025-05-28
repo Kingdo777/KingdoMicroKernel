@@ -15,25 +15,23 @@
 #define SLAB_POOL_SIZE (MAX_SLAB_BLOCK_ORDER - MIN_SLAB_BLOCK_ORDER + 1)
 
 #define slab_order_to_size(order) ((1UL) << (order))
-#define size_to_slab_order(size)                                         \
-	({                                                               \
-		int __order = MIN_SLAB_BLOCK_ORDER;                      \
-		if ((size) <= 0 ||                                       \
-		    (size) > slab_order_to_size(MAX_SLAB_BLOCK_ORDER)) { \
-			__order = -1;                                    \
-		} else {                                                 \
-			while ((size) > slab_order_to_size(__order)) {   \
-				__order++;                               \
-			}                                                \
-		}                                                        \
-		__order;                                                 \
+#define size_to_slab_order(size)                                                        \
+	({                                                                              \
+		int __order = MIN_SLAB_BLOCK_ORDER;                                     \
+		if ((size) <= 0 || (size) > slab_order_to_size(MAX_SLAB_BLOCK_ORDER)) { \
+			__order = -1;                                                   \
+		} else {                                                                \
+			while ((size) > slab_order_to_size(__order)) {                  \
+				__order++;                                              \
+			}                                                               \
+		}                                                                       \
+		__order;                                                                \
 	})
 
 #define slab_container(order) (&slab_pool_g[order - MIN_SLAB_BLOCK_ORDER])
 
-#define for_each_container_in_slab_pool(order, sc)                     \
-	for (order = MIN_SLAB_BLOCK_ORDER, sc = slab_container(order); \
-	     order <= MAX_SLAB_BLOCK_ORDER; order++, sc++)
+#define for_each_container_in_slab_pool(order, sc) \
+	for (order = MIN_SLAB_BLOCK_ORDER, sc = slab_container(order); order <= MAX_SLAB_BLOCK_ORDER; order++, sc++)
 
 struct slab_header {
 	int order;

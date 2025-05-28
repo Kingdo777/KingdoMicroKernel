@@ -41,8 +41,7 @@ struct per_cpu_info {
 	void *fpu_owner;
 	u32 fpu_disable;
 	/// 填充到缓存行大小的字节，以确保结构体对齐
-	char pad[pad_to_cache_line(sizeof(u64) + sizeof(char *) +
-				   sizeof(void *) + sizeof(u32))];
+	char pad[pad_to_cache_line(sizeof(u64) + sizeof(char *) + sizeof(void *) + sizeof(u32))];
 } __attribute__((packed, aligned(64))); // 紧凑存储、对齐到 64 字节
 
 void init_per_cpu_info(u32 cpuid);

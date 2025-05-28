@@ -90,8 +90,7 @@ static int set_pte_flags(pte_t *entry, vmr_prop_t flags, int kind)
 	if (flags & VMR_DEVICE) { // 设备内存
 		entry->l3_page.attr_index = DEVICE_MEMORY;
 		entry->l3_page.SH = 0;
-	} else if (flags &
-		   VMR_NOCACHE) { // 非缓存内存，CPU 访问该内存时绕过缓存，直接读写物理内存
+	} else if (flags & VMR_NOCACHE) { // 非缓存内存，CPU 访问该内存时绕过缓存，直接读写物理内存
 		entry->l3_page.attr_index = NORMAL_MEMORY_NOCACHE;
 	} else { // 普通内存
 		entry->l3_page.attr_index = NORMAL_MEMORY;
@@ -100,8 +99,7 @@ static int set_pte_flags(pte_t *entry, vmr_prop_t flags, int kind)
 	return 0;
 }
 
-#define GET_PADDR_IN_PTE(entry) \
-	(((u64)(entry)->table.next_table_addr) << PAGE_SHIFT)
+#define GET_PADDR_IN_PTE(entry) (((u64)(entry)->table.next_table_addr) << PAGE_SHIFT)
 #define GET_NEXT_PTP(entry) phys_to_virt(GET_PADDR_IN_PTE(entry))
 
 #define NORMAL_PTP (0)
@@ -119,8 +117,7 @@ static int set_pte_flags(pte_t *entry, vmr_prop_t flags, int kind)
  * @return: 返回下一级页表的类型，如果是最后一级页表或者块页表，则返回BLOCK_PTP，
  *         否则返回NORMAL_PTP
 */
-static int get_next_ptp(ptp_t *cur_ptp, u32 level, vaddr_t va, ptp_t **next_ptp,
-			pte_t **pte, bool alloc, long *rss)
+static int get_next_ptp(ptp_t *cur_ptp, u32 level, vaddr_t va, ptp_t **next_ptp, pte_t **pte, bool alloc, long *rss)
 {
 	u32 index = 0;
 	pte_t *entry;
@@ -168,8 +165,7 @@ static int get_next_ptp(ptp_t *cur_ptp, u32 level, vaddr_t va, ptp_t **next_ptp,
 			new_pte_val.pte = 0;
 			new_pte_val.table.is_valid = 1;
 			new_pte_val.table.is_table = 1;
-			new_pte_val.table.next_table_addr = new_ptp_paddr >>
-							    PAGE_SHIFT;
+			new_pte_val.table.next_table_addr = new_ptp_paddr >> PAGE_SHIFT;
 
 			/* same effect as: cur_ptp->ent[index] = new_pte_val; */
 			entry->pte = new_pte_val.pte;
@@ -248,8 +244,7 @@ int query_in_pgtbl(void *pgtbl, vaddr_t va, paddr_t *pa, pte_t **entry)
  * @param kind: 映射类型（内核/用户）
  * @param rss: 映射的物理页数
 */
-static int map_range_in_pgtbl_common(void *pgtbl, vaddr_t va, paddr_t pa,
-				     size_t len, vmr_prop_t flags, int kind,
+static int map_range_in_pgtbl_common(void *pgtbl, vaddr_t va, paddr_t pa, size_t len, vmr_prop_t flags, int kind,
 				     long *rss)
 {
 	s64 total_page_cnt;
@@ -287,8 +282,7 @@ static int map_range_in_pgtbl_common(void *pgtbl, vaddr_t va, paddr_t pa,
 			new_pte_val.pte = 0; // 清空页表项
 			new_pte_val.l3_page.is_valid = 1; // 设置有效位
 			new_pte_val.l3_page.is_page = 1; // 设置页表项类型为页
-			new_pte_val.l3_page.pfn = pa >>
-						  PAGE_SHIFT; // 设置物理页号
+			new_pte_val.l3_page.pfn = pa >> PAGE_SHIFT; // 设置物理页号
 			set_pte_flags(&new_pte_val, flags,
 				      kind); // 设置页表项属性
 			l3_ptp->ent[i].pte = new_pte_val.pte; // 更新页表项
@@ -319,11 +313,9 @@ static int map_range_in_pgtbl_common(void *pgtbl, vaddr_t va, paddr_t pa,
  * @param len: 映射长度
  * @param flags: 映射属性
 */
-int map_range_in_pgtbl_kernel(void *pgtbl, vaddr_t va, paddr_t pa, size_t len,
-			      vmr_prop_t flags)
+int map_range_in_pgtbl_kernel(void *pgtbl, vaddr_t va, paddr_t pa, size_t len, vmr_prop_t flags)
 {
-	return map_range_in_pgtbl_common(pgtbl, va, pa, len, flags, KERNEL_PTE,
-					 NULL);
+	return map_range_in_pgtbl_common(pgtbl, va, pa, len, flags, KERNEL_PTE, NULL);
 }
 
 /**
@@ -334,9 +326,7 @@ int map_range_in_pgtbl_kernel(void *pgtbl, vaddr_t va, paddr_t pa, size_t len,
  * @param len: 映射长度
  * @param flags: 映射属性
 */
-int map_range_in_pgtbl_user(void *pgtbl, vaddr_t va, paddr_t pa, size_t len,
-			    vmr_prop_t flags, long *rss)
+int map_range_in_pgtbl_user(void *pgtbl, vaddr_t va, paddr_t pa, size_t len, vmr_prop_t flags, long *rss)
 {
-	return map_range_in_pgtbl_common(pgtbl, va, pa, len, flags, USER_PTE,
-					 rss);
+	return map_range_in_pgtbl_common(pgtbl, va, pa, len, flags, USER_PTE, rss);
 }

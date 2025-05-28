@@ -41,32 +41,25 @@ static inline bool list_empty(struct list_head *head)
 	return head->next == head;
 }
 
-#define next_container_of_safe(obj, type, field)                        \
-	({                                                              \
-		typeof(obj) __obj = (obj);                              \
-		(__obj ? container_of_safe(((__obj)->field).next, type, \
-					   field) :                     \
-			 NULL);                                         \
+#define next_container_of_safe(obj, type, field)                                        \
+	({                                                                              \
+		typeof(obj) __obj = (obj);                                              \
+		(__obj ? container_of_safe(((__obj)->field).next, type, field) : NULL); \
 	})
 
 #define list_entry(ptr, type, field) container_of(ptr, type, field)
 
-#define list_first_entry(head, type, field) \
-	list_entry((head)->next, type, field)
+#define list_first_entry(head, type, field) list_entry((head)->next, type, field)
 
-#define for_each_in_list(elem, type, field, head)              \
-	for ((elem) = container_of((head)->next, type, field); \
-	     &((elem)->field) != (head);                       \
+#define for_each_in_list(elem, type, field, head)                                          \
+	for ((elem) = container_of((head)->next, type, field); &((elem)->field) != (head); \
 	     (elem) = container_of(((elem)->field).next, type, field))
 
-#define __for_each_in_list_safe(elem, tmp, type, field, head)  \
-	for ((elem) = container_of((head)->next, type, field), \
-	    (tmp) = next_container_of_safe(elem, type, field); \
-	     &((elem)->field) != (head);                       \
-	     (elem) = (tmp), (tmp) = next_container_of_safe(tmp, type, field))
+#define __for_each_in_list_safe(elem, tmp, type, field, head)                                                     \
+	for ((elem) = container_of((head)->next, type, field), (tmp) = next_container_of_safe(elem, type, field); \
+	     &((elem)->field) != (head); (elem) = (tmp), (tmp) = next_container_of_safe(tmp, type, field))
 
-#define for_each_in_list_safe(elem, tmp, field, head) \
-	__for_each_in_list_safe(elem, tmp, typeof(*(elem)), field, head)
+#define for_each_in_list_safe(elem, tmp, field, head) __for_each_in_list_safe(elem, tmp, typeof(*(elem)), field, head)
 
 struct hlist_head {
 	struct hlist_node *next;
@@ -109,23 +102,17 @@ static inline bool hlist_empty(struct hlist_head *head)
 
 #define hlist_entry(ptr, type, field) container_of(ptr, type, field)
 
-#define __for_each_in_hlist(elem, type, field, head)                         \
-	for ((elem) = container_of_safe((head)->next, type, field); elem;    \
-	     (elem) = (elem) ? container_of_safe(((elem)->field).next, type, \
-						 field) :                    \
-			       NULL)
+#define __for_each_in_hlist(elem, type, field, head)                      \
+	for ((elem) = container_of_safe((head)->next, type, field); elem; \
+	     (elem) = (elem) ? container_of_safe(((elem)->field).next, type, field) : NULL)
 
-#define for_each_in_hlist(elem, field, head) \
-	__for_each_in_hlist(elem, typeof(*(elem)), field, head)
+#define for_each_in_hlist(elem, field, head) __for_each_in_hlist(elem, typeof(*(elem)), field, head)
 
-#define __for_each_in_hlist_safe(elem, tmp, type, field, head)      \
-	for ((elem) = container_of_safe((head)->next, type, field), \
-	    (tmp) = next_container_of_safe(elem, type, field);      \
-	     elem; (elem) = (tmp),                                  \
-	    (tmp) = next_container_of_safe(elem, type, field))
+#define __for_each_in_hlist_safe(elem, tmp, type, field, head)                                                         \
+	for ((elem) = container_of_safe((head)->next, type, field), (tmp) = next_container_of_safe(elem, type, field); \
+	     elem; (elem) = (tmp), (tmp) = next_container_of_safe(elem, type, field))
 
-#define for_each_in_hlist_safe(elem, tmp, field, head) \
-	__for_each_in_hlist_safe(elem, tmp, typeof(*(elem)), field, head)
+#define for_each_in_hlist_safe(elem, tmp, field, head) __for_each_in_hlist_safe(elem, tmp, typeof(*(elem)), field, head)
 
 static inline void kprint_hlist(struct hlist_head *head)
 {

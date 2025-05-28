@@ -41,10 +41,8 @@ void main(paddr_t boot_flag, void *physmem_info)
 	kinfo("mm init finished\n");
 
 	/* 将内核栈映射到KSTACK_BASE以上的地址，确保发生栈溢出的时候不会破坏内核数据 */
-	map_range_in_pgtbl_kernel(
-		(void *)((unsigned long)boot_ttbr1_l0 + KBASE), KSTACKx_ADDR(0),
-		(unsigned long)(cpu_stacks[0]) - KBASE, CPU_STACK_SIZE,
-		VMR_READ | VMR_WRITE);
+	map_range_in_pgtbl_kernel((void *)((unsigned long)boot_ttbr1_l0 + KBASE), KSTACKx_ADDR(0),
+				  (unsigned long)(cpu_stacks[0]) - KBASE, CPU_STACK_SIZE, VMR_READ | VMR_WRITE);
 
 	/* 初始化 */
 	arch_interrupt_init();

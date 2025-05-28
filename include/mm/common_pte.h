@@ -32,8 +32,7 @@ struct common_pte_t {
  * 现在不在这个函数中使用。如果我们将来要实现 5 级页表，我们应该更改
  * 级别的编码。
  */
-void parse_pte_to_common(pte_t *pte, unsigned int level,
-			 struct common_pte_t *ret);
+void parse_pte_to_common(pte_t *pte, unsigned int level, struct common_pte_t *ret);
 
 /**
  * @brief 将通用 PTE 中的设置分配给架构特定的 PTE。

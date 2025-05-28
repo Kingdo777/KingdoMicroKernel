@@ -64,10 +64,8 @@ u64 boot_ttbr1_l2[PTP_ENTRIES] ALIGN(PTP_SIZE);
 #define SIZE_2M (2UL * 1024 * 1024)
 #define SIZE_1G (1024 * 1024 * 1024)
 
-#define GET_L0_INDEX(x) \
-	(((x) >> (12 + 9 + 9 + 9)) & 0x1ff) // 提取虚拟地址的 L0 索引
-#define GET_L1_INDEX(x) \
-	(((x) >> (12 + 9 + 9)) & 0x1ff) // 提取虚拟地址的 L1 索引
+#define GET_L0_INDEX(x) (((x) >> (12 + 9 + 9 + 9)) & 0x1ff) // 提取虚拟地址的 L0 索引
+#define GET_L1_INDEX(x) (((x) >> (12 + 9 + 9)) & 0x1ff) // 提取虚拟地址的 L1 索引
 #define GET_L2_INDEX(x) (((x) >> (12 + 9)) & 0x1ff) // 提取虚拟地址的 L2 索引
 #define GET_L3_INDEX(x) (((x) >> (12)) & 0x1ff) // 提取虚拟地址的 L3 索引
 
@@ -84,35 +82,30 @@ void init_kernel_pt(void)
 	/* 一、配置 boot_ttbr1，映射高位虚拟内存，即在现有内存地址的基础上添加 KERNEL_VADDR 偏移 */
 
 	/* 1.1 L0 只需要一个页表页，即 L1 页表页的地址 */
-	boot_ttbr1_l0[GET_L0_INDEX(vaddr + KERNEL_VADDR)] =
-		((u64)boot_ttbr1_l1) | IS_TABLE | IS_VALID | NG;
+	boot_ttbr1_l0[GET_L0_INDEX(vaddr + KERNEL_VADDR)] = ((u64)boot_ttbr1_l1) | IS_TABLE | IS_VALID | NG;
 	/* 1.2 以 2MB 页粒度映射 0x0000000 ~ 0x40000000 的内存 */
 	// 首先把L2页表页的地址写入 L1 页表项
-	boot_ttbr1_l1[GET_L1_INDEX(vaddr + KERNEL_VADDR)] =
-		((u64)boot_ttbr1_l2) | IS_TABLE | IS_VALID | NG;
+	boot_ttbr1_l1[GET_L1_INDEX(vaddr + KERNEL_VADDR)] = ((u64)boot_ttbr1_l2) | IS_TABLE | IS_VALID | NG;
 	// 每2MB一个条项，写入 L2 页表项，映射 0x00000000 ~ 0x3F000000 的普通内存
 	for (; vaddr < PERIPHERAL_BASE; vaddr += SIZE_2M) {
-		boot_ttbr1_l2[GET_L2_INDEX(vaddr + KERNEL_VADDR)] =
-			(vaddr) | UXN /* 非特权态无法执行 */
-			| ACCESSED /* 访问标志位 */
-			| NG /* 非全局标志位 */
-			| INNER_SHARABLE /* 内部共享 */
-			| NORMAL_MEMORY /* 普通内存 */
-			| IS_VALID; /* 有效位 */
+		boot_ttbr1_l2[GET_L2_INDEX(vaddr + KERNEL_VADDR)] = (vaddr) | UXN /* 非特权态无法执行 */
+								    | ACCESSED /* 访问标志位 */
+								    | NG /* 非全局标志位 */
+								    | INNER_SHARABLE /* 内部共享 */
+								    | NORMAL_MEMORY /* 普通内存 */
+								    | IS_VALID; /* 有效位 */
 	}
 	// 每2MB一个条项，写入 L2 页表项，0x3F000000 ~ 0x40000000 映射为设备内存
 	for (; vaddr < SHARED_PERIPHERAL_END; vaddr += SIZE_2M) {
-		boot_ttbr1_l2[GET_L2_INDEX(vaddr + KERNEL_VADDR)] =
-			(vaddr) | UXN | ACCESSED | NG | INNER_SHARABLE |
-			DEVICE_MEMORY /* 设备内存 */
-			| IS_VALID;
+		boot_ttbr1_l2[GET_L2_INDEX(vaddr + KERNEL_VADDR)] = (vaddr) | UXN | ACCESSED | NG | INNER_SHARABLE |
+								    DEVICE_MEMORY /* 设备内存 */
+								    | IS_VALID;
 	}
 	/* 1.3 以 1GB 页粒度映射 0x40000000~0xFFFFFFFF 的内存 */
 	for (; vaddr < PHYSMEM_END; vaddr += SIZE_1G) {
-		boot_ttbr1_l1[GET_L1_INDEX(vaddr + KERNEL_VADDR)] =
-			(vaddr) | UXN | ACCESSED | NG |
-			DEVICE_MEMORY /* 设备内存 */
-			| IS_VALID;
+		boot_ttbr1_l1[GET_L1_INDEX(vaddr + KERNEL_VADDR)] = (vaddr) | UXN | ACCESSED | NG |
+								    DEVICE_MEMORY /* 设备内存 */
+								    | IS_VALID;
 	}
 
 	/* 二、配置 boot_ttbr0，映射低位虚拟内存，确保开启MMU后能正常访问，
@@ -120,19 +113,15 @@ void init_kernel_pt(void)
          */
 
 	vaddr = PHYSMEM_START; // 重新初始化 vaddr 为物理内存的起始地址
-	boot_ttbr0_l0[GET_L0_INDEX(vaddr)] = ((u64)boot_ttbr0_l1) | IS_TABLE |
-					     IS_VALID | NG;
-	boot_ttbr0_l1[GET_L1_INDEX(vaddr)] = ((u64)boot_ttbr0_l2) | IS_TABLE |
-					     IS_VALID | NG;
+	boot_ttbr0_l0[GET_L0_INDEX(vaddr)] = ((u64)boot_ttbr0_l1) | IS_TABLE | IS_VALID | NG;
+	boot_ttbr0_l1[GET_L1_INDEX(vaddr)] = ((u64)boot_ttbr0_l2) | IS_TABLE | IS_VALID | NG;
 	for (; vaddr < SIZE_2M; vaddr += SIZE_2M) {
-		boot_ttbr0_l2[GET_L2_INDEX(vaddr)] = (vaddr) | UXN | ACCESSED |
-						     NG | INNER_SHARABLE |
-						     NORMAL_MEMORY | IS_VALID;
+		boot_ttbr0_l2[GET_L2_INDEX(vaddr)] = (vaddr) | UXN | ACCESSED | NG | INNER_SHARABLE | NORMAL_MEMORY |
+						     IS_VALID;
 	}
 	for (; vaddr < SHARED_PERIPHERAL_END; vaddr += SIZE_2M) {
-		boot_ttbr0_l2[GET_L2_INDEX(vaddr)] =
-			(vaddr) | UXN | ACCESSED | NG | INNER_SHARABLE |
-			DEVICE_MEMORY /* 设备内存 */
-			| IS_VALID;
+		boot_ttbr0_l2[GET_L2_INDEX(vaddr)] = (vaddr) | UXN | ACCESSED | NG | INNER_SHARABLE |
+						     DEVICE_MEMORY /* 设备内存 */
+						     | IS_VALID;
 	}
 }

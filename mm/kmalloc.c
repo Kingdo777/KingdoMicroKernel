@@ -115,7 +115,6 @@ void kmalloc_test()
 		}
 	}
 	size_t free_buddy_size_after = get_free_mem_size_from_buddy();
-	assert(free_buddy_size_after ==
-	       free_buddy_size_before); // 确保释放的内存和分配的内存一致
+	assert(free_buddy_size_after == free_buddy_size_before); // 确保释放的内存和分配的内存一致
 	kinfo("kmalloc test passed\n");
 }

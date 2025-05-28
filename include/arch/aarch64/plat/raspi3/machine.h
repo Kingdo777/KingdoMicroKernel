@@ -186,8 +186,7 @@
 #define CORE_MBOX_SET(cpu, box) (CORE_MBOX_SET_BASE + cpu * 0x10 + box * 0x4)
 
 #define CORE_MBOX_RDCLR_BASE (KBASE + 0x400000c0)
-#define CORE_MBOX_RDCLR(cpu, box) \
-	(CORE_MBOX_RDCLR_BASE + cpu * 0x10 + box * 0x4)
+#define CORE_MBOX_RDCLR(cpu, box) (CORE_MBOX_RDCLR_BASE + cpu * 0x10 + box * 0x4)
 
 // FIXME:
 // 1. Make the definitions precise according to Section-4.6 and 4.10 in QA7.pdf.

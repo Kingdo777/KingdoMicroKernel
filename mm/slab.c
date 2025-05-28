@@ -11,8 +11,7 @@ static bool container_is_free_enough(struct slab_container *sc)
 	// 这里的判断条件是为了避免频繁地从伙伴系统中申请新的slab
 	// 当然，这个条件可以根据实际情况进行调整
 	BUG_ON(sc == NULL);
-	if (sc->current == NULL || sc->current->free_block_count <
-					   sc->current->total_block_count / 2) {
+	if (sc->current == NULL || sc->current->free_block_count < sc->current->total_block_count / 2) {
 		return false;
 	}
 	return true;
@@ -76,8 +75,7 @@ static struct slab_header *get_from_partial_list(struct slab_container *sc)
 	if (list_empty(&sc->partial_list)) {
 		s = NULL;
 	} else {
-		s = list_first_entry(&sc->partial_list, struct slab_header,
-				     partial_list_node);
+		s = list_first_entry(&sc->partial_list, struct slab_header, partial_list_node);
 		list_del(&s->partial_list_node);
 	}
 	return s;
@@ -138,8 +136,7 @@ static int put_slab_to_buddy(struct slab_header *s)
 		return -EINVAL;
 	}
 	if (s->free_block_count != s->total_block_count - 1) {
-		kerror("put_slab_to_buddy: slab header %p is not full free\n",
-		       s);
+		kerror("put_slab_to_buddy: slab header %p is not full free\n", s);
 		return -EINVAL;
 	}
 
@@ -159,10 +156,8 @@ static void slab_put_block(struct slab_header *s, void *block)
 	BUG_ON(s == NULL);
 	BUG_ON(block == NULL);
 
-	block_index = ((unsigned long)block - (unsigned long)s) /
-		      slab_order_to_size(s->order);
-	block = (void *)((unsigned long)s +
-			 block_index * slab_order_to_size(s->order));
+	block_index = ((unsigned long)block - (unsigned long)s) / slab_order_to_size(s->order);
+	block = (void *)((unsigned long)s + block_index * slab_order_to_size(s->order));
 
 	((struct slab_next_block *)block)->next = s->next_free_block;
 	s->next_free_block = block;
@@ -274,8 +269,7 @@ int slab_free(void *addr)
 		if (s != NULL) {
 			err = __slab_free(s, addr);
 			if (err != 0) {
-				kerror("slab_free: failed to free address %p\n",
-				       addr);
+				kerror("slab_free: failed to free address %p\n", addr);
 			}
 		}
 	}
@@ -292,10 +286,8 @@ void calculate_slab_free_block_count(int counts[SLAB_POOL_SIZE])
 		struct slab_header *s = NULL;
 		unsigned long free_block_count = 0;
 
-		free_block_count = sc->current ? sc->current->free_block_count :
-						 0;
-		for_each_in_list(s, struct slab_header, partial_list_node,
-				 &sc->partial_list) {
+		free_block_count = sc->current ? sc->current->free_block_count : 0;
+		for_each_in_list(s, struct slab_header, partial_list_node, &sc->partial_list) {
 			free_block_count += s->free_block_count;
 		}
 		counts[order - MIN_SLAB_BLOCK_ORDER] = free_block_count;
@@ -306,9 +298,7 @@ void print_slab_info(void)
 {
 	int counts[SLAB_POOL_SIZE] = { 0 };
 	calculate_slab_free_block_count(counts);
-	for (int order = 0;
-	     order <= MAX_SLAB_BLOCK_ORDER - MIN_SLAB_BLOCK_ORDER; order++) {
-		kinfo("slab pool of order-%d: free block count %lu\n", order,
-		      counts[order]);
+	for (int order = 0; order <= MAX_SLAB_BLOCK_ORDER - MIN_SLAB_BLOCK_ORDER; order++) {
+		kinfo("slab pool of order-%d: free block count %lu\n", order, counts[order]);
 	}
 }

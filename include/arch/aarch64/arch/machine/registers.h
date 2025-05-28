@@ -32,18 +32,15 @@
 #define SPSR_EL1_KERNEL SPSR_EL1_EL1h
 #define SPSR_EL1_USER SPSR_EL1_EL0t
 
-#define SCTLR_EL1_WXN \
-	BIT(19) /* Writable eXecute Never, for accesses at EL0 and El1 */
-#define SCTLR_EL1_I \
-	BIT(12) /* Instruction access Cacheability control, for accesses at EL0 and EL1 */
+#define SCTLR_EL1_WXN BIT(19) /* Writable eXecute Never, for accesses at EL0 and El1 */
+#define SCTLR_EL1_I BIT(12) /* Instruction access Cacheability control, for accesses at EL0 and EL1 */
 #define SCTLR_EL1_nAA \
 	BIT(6) /* Non-aligned access. This bit controls generation of Alignment faults at EL1 and EL0 under certain conditions */
 #define SCTLR_EL1_SA0 BIT(4) /* SP Alignment check enable for EL0 */
 #define SCTLR_EL1_SA BIT(3) /* SP Alignment check */
 #define SCTLR_EL1_C BIT(2) /* Cacheability control for data accesses */
 #define SCTLR_EL1_A BIT(1) /* Alignment check enable */
-#define SCTLR_EL1_M \
-	BIT(0) /* MMU enable for EL1 and EL0 stage 1 address translation */
+#define SCTLR_EL1_M BIT(0) /* MMU enable for EL1 and EL0 stage 1 address translation */
 
 /* SCTLR_EL2 System Control Register aarch64 */
 #define SCTLR_EL2_DSSBS BIT(44)
@@ -63,13 +60,10 @@
 #define SCTLR_EL2_A BIT(1)
 #define SCTLR_EL2_M BIT(0)
 
-#define SCTLR_EL2_FLAGS                                           \
-	(SCTLR_EL2_M | SCTLR_EL2_A | SCTLR_EL2_C | SCTLR_EL2_SA | \
-	 SCTLR_EL2_I | SCTLR_EL2_IESB)
+#define SCTLR_EL2_FLAGS (SCTLR_EL2_M | SCTLR_EL2_A | SCTLR_EL2_C | SCTLR_EL2_SA | SCTLR_EL2_I | SCTLR_EL2_IESB)
 
-#define SCTLR_EL2_RES1                                                         \
-	((BIT(4)) | (BIT(5)) | (BIT(11)) | (BIT(16)) | (BIT(18)) | (BIT(22)) | \
-	 (BIT(23)) | (BIT(28)) | (BIT(29)))
+#define SCTLR_EL2_RES1 \
+	((BIT(4)) | (BIT(5)) | (BIT(11)) | (BIT(16)) | (BIT(18)) | (BIT(22)) | (BIT(23)) | (BIT(28)) | (BIT(29)))
 
 #ifndef __ASM__
 /* Types of the registers */

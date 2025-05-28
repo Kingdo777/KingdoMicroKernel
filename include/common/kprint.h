@@ -15,8 +15,7 @@
 		;
 
 #if LOG_LEVEL >= WARNING
-#define kwarn(fmt, ...) \
-	printk("[WARN] file: %s:%u " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+#define kwarn(fmt, ...) printk("[WARN] file: %s:%u " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 #else
 #define kwarn(fmt, ...)
 #endif

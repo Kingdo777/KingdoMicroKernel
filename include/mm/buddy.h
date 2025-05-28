@@ -11,18 +11,17 @@
 #define BUDDY_CHUNK_SIZE_MASK(order) (BUDDY_CHUNK_SIZE(order) - 1)
 #define BUDDY_CHUNK_PAGES_COUNT(order) ((1UL) << order)
 
-#define size_to_page_order(size)                                      \
-	({                                                            \
-		int __order = 0;                                      \
-		if ((size) <= 0 ||                                    \
-		    (size) > BUDDY_CHUNK_SIZE(BUDDY_MAX_ORDER - 1)) { \
-			__order = -1;                                 \
-		} else {                                              \
-			while ((size) > BUDDY_CHUNK_SIZE(__order)) {  \
-				__order++;                            \
-			}                                             \
-		}                                                     \
-		__order;                                              \
+#define size_to_page_order(size)                                                     \
+	({                                                                           \
+		int __order = 0;                                                     \
+		if ((size) <= 0 || (size) > BUDDY_CHUNK_SIZE(BUDDY_MAX_ORDER - 1)) { \
+			__order = -1;                                                \
+		} else {                                                             \
+			while ((size) > BUDDY_CHUNK_SIZE(__order)) {                 \
+				__order++;                                           \
+			}                                                            \
+		}                                                                    \
+		__order;                                                             \
 	})
 
 #define pfn_to_page(pfn) (memory_region_g.page_arrry + pfn)
